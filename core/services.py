@@ -1,4 +1,3 @@
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db.models import Q
 from django.conf import settings
 from .repositories import ActivityLogRepository, SystemConfigRepository
@@ -95,6 +94,7 @@ class SearchService:
         try:
             from accounts.models import User
             if 'postgresql' in settings.DATABASES.get('default', {}).get('ENGINE', ''):
+                from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
                 vector = SearchVector('username', 'email', 'first_name', 'last_name', 'nim', 'nidn')
                 search_query = SearchQuery(query)
                 qs = User.objects.annotate(
