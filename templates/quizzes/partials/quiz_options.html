@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for q in quizzes %}
+<option value="{{ q.id }}">{{ q.title }} (Due: {{ q.due_date|date:'d M Y' }})</option>
+{% endfor %}

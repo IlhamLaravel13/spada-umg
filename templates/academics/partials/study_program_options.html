@@ -1,0 +1,4 @@
+<option value="" class="bg-gray-800">---------</option>
+{% for sp in study_programs %}
+<option value="{{ sp.id }}" class="bg-gray-800">{{ sp.name }}</option>
+{% endfor %}

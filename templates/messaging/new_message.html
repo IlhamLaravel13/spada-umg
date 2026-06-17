@@ -1,0 +1,117 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Pesan Baru - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ selectedUsers: [], searchQuery: '' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'messaging:inbox' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Pesan Baru</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-3xl mx-auto w-full px-6 pb-12 mt-6 flex-1">
+    <!-- Selected Users Pills -->
+    <div class="flex flex-wrap gap-2 mb-4" id="selected-pills">
+      <template x-for="(user, index) in selectedUsers" :key="user.id">
+        <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-200 text-sm">
+          <span x-text="user.name"></span>
+          <button type="button" @click="selectedUsers.splice(index, 1)" class="ml-2 text-blue-300 hover:text-red-300">
+            <i class="fas fa-times"></i>
+          </button>
+        </span>
+      </template>
+    </div>
+
+    <!-- Subject (for group) -->
+    <div class="mb-4" x-show="selectedUsers.length > 1">
+      <input type="text" name="subject" id="id_subject"
+        class="w-full px-4 py-3 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+        placeholder="Nama grup (opsional)">
+    </div>
+
+    <!-- Search Users -->
+    <div class="relative mb-4">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-blue-300/40"></i>
+      <input type="text" x-model="searchQuery"
+        class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+        placeholder="Cari pengguna...">
+    </div>
+
+    <!-- Users Grid -->
+    <form method="post" action="{% url 'messaging:start_conversation' %}" id="newMsgForm">
+      {% csrf_token %}
+      <input type="hidden" name="subject" id="subject-input">
+
+      <div class="space-y-2 max-h-[60vh] overflow-y-auto" id="userList">
+        {% for u in users %}
+        <label @click="
+          if(selectedUsers.find(us => us.id === {{ u.id }})) {
+            selectedUsers = selectedUsers.filter(us => us.id !== {{ u.id }});
+          } else {
+            selectedUsers.push({id: {{ u.id }}, name: '{{ u.get_full_name|default:u.username|escapejs }}'});
+          }
+        "
+          class="flex items-center space-x-4 px-4 py-3 rounded-2xl backdrop-blur-xl bg-white/5 hover:bg-white/10 dark:bg-gray-900/20 border border-white/10 hover:border-white/20 transition-all cursor-pointer group"
+          :class="selectedUsers.find(us => us.id === {{ u.id }}) ? 'border-blue-400/50 bg-blue-500/10' : ''"
+          x-show="!searchQuery || '{{ u.get_full_name|default:u.username }}'.toLowerCase().includes(searchQuery.toLowerCase())">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            {{ u.get_full_name|default:u.username|first|upper }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-white truncate">{{ u.get_full_name|default:u.username }}</p>
+            <p class="text-xs text-blue-200/50 truncate">
+              {{ u.get_role_display }}
+              {% if u.study_program %} - {{ u.study_program }}{% endif %}
+            </p>
+          </div>
+          <div class="w-5 h-5 rounded border-2 flex-shrink-0 transition-all"
+            :class="selectedUsers.find(us => us.id === {{ u.id }}) ? 'bg-blue-500 border-blue-400' : 'border-white/30 group-hover:border-white/50'">
+            <i x-show="selectedUsers.find(us => us.id === {{ u.id }})" class="fas fa-check text-white text-xs flex items-center justify-center w-full h-full"></i>
+          </div>
+        </label>
+        {% empty %}
+        <div class="text-center py-12">
+          <p class="text-blue-200/50">
+            <i class="fas fa-users text-4xl mb-3 block"></i>
+            Tidak ada pengguna yang tersedia.
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Submit -->
+      <div class="mt-6 flex justify-end">
+        <button type="submit"
+          @click="
+            document.querySelectorAll('#userList input[type=hidden]').forEach(el => el.remove());
+            selectedUsers.forEach(u => {
+              let inp = document.createElement('input');
+              inp.type = 'hidden';
+              inp.name = 'participants';
+              inp.value = u.id;
+              document.getElementById('newMsgForm').appendChild(inp);
+            });
+            document.getElementById('subject-input').value = document.getElementById('id_subject')?.value || '';
+          "
+          :disabled="selectedUsers.length === 0"
+          class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+          <i class="fas fa-comment"></i>
+          <span x-text="selectedUsers.length > 1 ? 'Buat Grup' : 'Mulai Chat'"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

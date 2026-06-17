@@ -1,0 +1,185 @@
+{% extends 'spada_umg/base.html' %}
+{% load static humanize %}
+
+{% block title %}Detail Pembayaran - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gray-50 dark:bg-gray-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- Back -->
+  <a href="{% url 'payments:list' %}"
+    class="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-6 transition-colors">
+    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    Kembali
+  </a>
+
+  <!-- Payment Detail Card -->
+  <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 overflow-hidden">
+
+    <!-- Status Banner -->
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700
+      {% if payment.status == 'success' %}bg-green-50 dark:bg-green-900/20
+      {% elif payment.status == 'pending' %}bg-yellow-50 dark:bg-yellow-900/20
+      {% elif payment.status == 'failed' or payment.status == 'expired' %}bg-red-50 dark:bg-red-900/20
+      {% else %}bg-blue-50 dark:bg-blue-900/20{% endif %}">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          {% if payment.status == 'success' %}
+          <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {% elif payment.status == 'pending' %}
+          <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {% else %}
+          <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {% endif %}
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ payment.get_status_display }}
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ payment.invoice_number }}</p>
+          </div>
+        </div>
+        <span class="text-2xl font-bold text-gray-900 dark:text-white">Rp {{ payment.amount|floatformat:0|intcomma }}</span>
+      </div>
+    </div>
+
+    <!-- Detail -->
+    <div class="p-6 space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipe Pembayaran</label>
+          <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ payment.get_payment_type_display }}</p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Metode</label>
+          <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ payment.get_payment_method_display|default:'Belum dipilih' }}</p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tanggal Dibuat</label>
+          <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ payment.created_at|date:"d M Y H:i" }}</p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</label>
+          <p class="mt-1">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+              {% if payment.status == 'success' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+              {% elif payment.status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
+              {% elif payment.status == 'processing' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+              {% elif payment.status == 'failed' or payment.status == 'expired' %}bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300
+              {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+              {{ payment.get_status_display }}
+            </span>
+          </p>
+        </div>
+        {% if payment.paid_at %}
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dibayar Pada</label>
+          <p class="mt-1 text-sm font-medium text-green-600 dark:text-green-400">{{ payment.paid_at|date:"d M Y H:i" }}</p>
+        </div>
+        {% endif %}
+        {% if payment.expired_at %}
+        <div>
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kadaluwarsa</label>
+          <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ payment.expired_at|date:"d M Y H:i" }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if payment.description %}
+      <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Deskripsi</label>
+        <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ payment.description }}</p>
+      </div>
+      {% endif %}
+
+      {% if payment.transaction_id %}
+      <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID Transaksi</label>
+        <p class="mt-1 text-sm font-mono text-gray-900 dark:text-white">{{ payment.transaction_id }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
+      <div class="flex flex-wrap gap-3">
+        {% if payment.status == 'pending' or payment.status == 'failed' or payment.status == 'expired' %}
+          {% if payment.payment_method == 'midtrans' or payment.payment_method == 'xendit' %}
+          <form method="post" action="{% url 'payments:retry' payment.id %}"
+                hx-post="{% url 'payments:retry' payment.id %}"
+                hx-confirm="Lanjutkan pembayaran ini?">
+            {% csrf_token %}
+            <button type="submit"
+              class="inline-flex items-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 transition-all duration-200">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              Bayar Sekarang
+            </button>
+          </form>
+          {% endif %}
+          {% if payment.payment_method == 'transfer' or payment.payment_method == 'cash' %}
+          <form method="post" action="{% url 'payments:upload_receipt' payment.id %}" enctype="multipart/form-data"
+                x-data="{ uploading: false }"
+                @submit="uploading = true">
+            {% csrf_token %}
+            <div class="flex items-center space-x-3">
+              <label class="cursor-pointer">
+                <span class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                  </svg>
+                  Upload Bukti
+                </span>
+                <input type="file" name="receipt_file" accept="image/*,.pdf" class="hidden" required>
+              </label>
+              <button type="submit"
+                class="inline-flex items-center px-4 py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-semibold transition-all duration-200"
+                x-show="!uploading">
+                Kirim
+              </button>
+              <span x-show="uploading" class="text-sm text-gray-500 dark:text-gray-400">
+                <svg class="animate-spin inline w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Mengupload...
+              </span>
+            </div>
+          </form>
+          {% endif %}
+        {% endif %}
+
+        {% if payment.status == 'success' and payment.receipt %}
+        <a href="{{ payment.receipt.receipt_file.url }}" target="_blank"
+          class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Download Bukti
+        </a>
+        {% endif %}
+
+        {% if payment.payment_url %}
+        <a href="{{ payment.payment_url }}" target="_blank"
+          class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+          Buka Halaman Pembayaran
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

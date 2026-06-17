@@ -1,0 +1,197 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ quiz.title }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen" x-data="{ activeTab: 'details' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <a href="{% url 'quizzes:quiz_list' %}" class="text-blue-300/70 hover:text-white transition-colors text-sm mb-3 inline-block">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Quizzes
+      </a>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center space-x-3 mb-1">
+            <h1 class="text-2xl font-bold text-white">{{ quiz.title }}</h1>
+            {% if quiz.is_published %}
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-400/30">Published</span>
+            {% else %}
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-300 border border-yellow-400/30">Draft</span>
+            {% endif %}
+            {% if quiz.is_past_due %}
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-300 border border-red-400/30">Past Due</span>
+            {% endif %}
+          </div>
+          <p class="text-blue-200/70 text-sm">{{ quiz.class_meta.course.code }} - {{ quiz.class_meta.name }} | {{ quiz.class_meta.semester }}</p>
+        </div>
+        <div class="flex space-x-2">
+          {% if user == quiz.created_by or user.is_admin %}
+          <a href="{% url 'quizzes:quiz_update' quiz.pk %}" class="px-4 py-2 rounded-xl bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 font-medium text-sm border border-yellow-400/30 transition-all">
+            <i class="fas fa-pen mr-2"></i>Edit
+          </a>
+          <a href="{% url 'quizzes:question_create' %}?quiz_id={{ quiz.pk }}" class="px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 font-medium text-sm border border-blue-400/30 transition-all">
+            <i class="fas fa-plus mr-2"></i>Add Question
+          </a>
+          <a href="{% url 'quizzes:quiz_grades' %}?quiz_id={{ quiz.pk }}" class="px-4 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 font-medium text-sm border border-purple-400/30 transition-all">
+            <i class="fas fa-check-double mr-2"></i>Grades
+          </a>
+          {% endif %}
+          {% if user.is_mahasiswa and can_take %}
+          <a href="{% url 'quizzes:quiz_take' quiz.pk %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+            <i class="fas fa-play mr-2"></i>Take Quiz
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-6 py-6">
+    <div class="flex space-x-1 mb-6 backdrop-blur-xl bg-white/5 dark:bg-gray-900/20 rounded-xl p-1 border border-white/10 w-fit">
+      <button @click="activeTab = 'details'" :class="{ 'bg-white/20 text-white': activeTab === 'details', 'text-blue-200/70 hover:text-white': activeTab !== 'details' }" class="px-4 py-2 rounded-lg text-sm font-medium transition-all">Details</button>
+      <button @click="activeTab = 'questions'" :class="{ 'bg-white/20 text-white': activeTab === 'questions', 'text-blue-200/70 hover:text-white': activeTab !== 'questions' }" class="px-4 py-2 rounded-lg text-sm font-medium transition-all">Questions ({{ question_count }})</button>
+      <button @click="activeTab = 'attempts'" :class="{ 'bg-white/20 text-white': activeTab === 'attempts', 'text-blue-200/70 hover:text-white': activeTab !== 'attempts' }" class="px-4 py-2 rounded-lg text-sm font-medium transition-all">My Attempts</button>
+    </div>
+
+    <div x-show="activeTab === 'details'">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+          {% if quiz.description %}
+          <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+            <h3 class="text-lg font-semibold text-white mb-3">Description</h3>
+            <p class="text-blue-200/70 leading-relaxed">{{ quiz.description|linebreaks }}</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="space-y-4">
+          <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Quiz Info</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between"><span class="text-blue-200/70">Due Date</span><span class="text-white font-medium {% if quiz.is_past_due %}text-red-300{% endif %}">{{ quiz.due_date|date:'d M Y H:i' }}</span></div>
+              <div class="flex justify-between"><span class="text-blue-200/70">Time Limit</span><span class="text-white font-semibold">{{ quiz.time_limit_minutes }} minutes</span></div>
+              <div class="flex justify-between"><span class="text-blue-200/70">Questions</span><span class="text-white font-semibold">{{ question_count }}</span></div>
+              <div class="flex justify-between"><span class="text-blue-200/70">Total Points</span><span class="text-white font-semibold">{{ total_points }}</span></div>
+              <div class="flex justify-between"><span class="text-blue-200/70">Passing Score</span><span class="text-white">{{ quiz.passing_score }}%</span></div>
+              <div class="flex justify-between"><span class="text-blue-200/70">Max Attempts</span><span class="text-white">{{ quiz.max_attempts }}</span></div>
+              <div class="flex justify-between"><span class="text-blue-200/70">Shuffle Questions</span><span class="text-white">{% if quiz.shuffle_questions %}Yes{% else %}No{% endif %}</span></div>
+              <div class="flex justify-between"><span class="text-blue-200/70">Show Result</span><span class="text-white">{% if quiz.show_result_immediately %}Immediately{% else %}After Review{% endif %}</span></div>
+            </div>
+          </div>
+
+          <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Creator</h3>
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                {{ quiz.created_by.username|first|upper }}
+              </div>
+              <div>
+                <p class="text-white font-medium">{{ quiz.created_by.get_full_name|default:quiz.created_by.username }}</p>
+                <p class="text-blue-200/50 text-xs">Created {{ quiz.created_at|date:'d M Y' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div x-show="activeTab === 'questions'">
+      <div class="space-y-4">
+        {% for question in quiz.questions.all %}
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center space-x-3">
+              <span class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-200 text-sm font-bold">{{ question.order }}</span>
+              <div>
+                <h4 class="text-white font-medium">{{ question.question_text }}</h4>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-200">{{ question.get_question_type_display }}</span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-blue-200/70 text-sm font-semibold">{{ question.points }} pts</span>
+              {% if user.is_dosen or user.is_admin %}
+              <a href="{% url 'quizzes:question_update' question.pk %}" class="p-1.5 rounded-lg hover:bg-white/10 text-yellow-300/70 hover:text-yellow-200 transition-all" title="Edit">
+                <i class="fas fa-pen text-xs"></i>
+              </a>
+              <form method="post" action="{% url 'quizzes:question_delete' question.pk %}" class="inline" onsubmit="return confirm('Delete this question?')">
+                {% csrf_token %}
+                <button type="submit" class="p-1.5 rounded-lg hover:bg-white/10 text-red-300/70 hover:text-red-200 transition-all" title="Delete">
+                  <i class="fas fa-trash text-xs"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+          {% if question.question_type != 'essay' %}
+          <div class="ml-11 space-y-1">
+            {% for answer in question.answers.all %}
+            <div class="flex items-center space-x-2 text-sm {% if answer.is_correct %}text-green-300{% else %}text-blue-200/60{% endif %}">
+              <i class="fas {% if answer.is_correct %}fa-check-circle{% else %}fa-circle{% endif %} text-xs"></i>
+              <span>{{ answer.answer_text }}</span>
+              {% if answer.is_correct %}<span class="text-xs text-green-400">(Correct)</span>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center py-12 text-blue-200/50">
+          <i class="fas fa-question text-4xl mb-3"></i>
+          <p>No questions yet.</p>
+          <a href="{% url 'quizzes:question_create' %}?quiz_id={{ quiz.pk }}" class="inline-block mt-3 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold">Add Question</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div x-show="activeTab === 'attempts'">
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-white/10">
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Attempt</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Score</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Passed</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Started</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Completed</th>
+                <th class="text-right px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              {% for attempt in user_attempts %}
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-medium bg-indigo-500/20 text-indigo-200">#{{ forloop.revcounter }}</span></td>
+                <td class="px-6 py-4 text-white font-semibold">{{ attempt.score|default:'In Progress' }}%</td>
+                <td class="px-6 py-4">
+                  {% if attempt.is_completed %}
+                  {% if attempt.is_passed %}<span class="text-green-300">Passed</span>{% else %}<span class="text-red-300">Failed</span>{% endif %}
+                  {% else %}<span class="text-yellow-300">In Progress</span>{% endif %}
+                </td>
+                <td class="px-6 py-4 text-blue-200/70 text-sm">{{ attempt.started_at|date:'d M Y H:i' }}</td>
+                <td class="px-6 py-4 text-blue-200/70 text-sm">{{ attempt.completed_at|date:'d M Y H:i'|default:'-' }}</td>
+                <td class="px-6 py-4 text-right">
+                  {% if attempt.is_completed %}
+                  <a href="{% url 'quizzes:quiz_result' quiz.pk attempt.pk %}" class="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 text-xs font-medium transition-all">View Result</a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" class="px-6 py-12 text-center text-blue-200/50"><i class="fas fa-history text-4xl mb-3"></i><p>No attempts yet.</p></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

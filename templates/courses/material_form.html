@@ -1,0 +1,97 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{% if is_update %}Edit{% else %}Upload{% endif %} Materi - {{ class_obj.course.name }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'courses:material_manage' class_obj.id %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <div>
+          <h1 class="text-xl font-bold text-white">{% if is_update %}Edit{% else %}Upload{% endif %} Materi</h1>
+          <p class="text-blue-200/60 text-sm">{{ class_obj.course.name }} - {{ class_obj.name }}</p>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-3xl mx-auto w-full px-6 mt-6 pb-12">
+    <form method="post" enctype="multipart/form-data" class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 space-y-6">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-sm font-medium text-blue-200 mb-2">Judul Materi <span class="text-red-400">*</span></label>
+        <input type="text" name="title" value="{{ form.title.value|default:'' }}" required class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="Masukkan judul materi">
+        {% if form.title.errors %}<p class="text-red-300 text-xs mt-1">{{ form.title.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-blue-200 mb-2">Deskripsi</label>
+        <textarea name="description" rows="3" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="Deskripsi materi (opsional)">{{ form.description.value|default:'' }}</textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-blue-200 mb-2">Tipe File <span class="text-red-400">*</span></label>
+        <select name="file_type" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+          {% for value, label in form.file_type.field.choices %}
+          <option value="{{ value }}" class="bg-gray-800" {% if form.file_type.value == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-blue-200 mb-2">Upload File</label>
+        <div class="relative border-2 border-dashed border-white/20 rounded-xl p-6 text-center hover:border-blue-400/50 transition-colors" x-data="{ fileName: '' }">
+          <input type="file" name="file" @change="fileName = $event.target.files[0]?.name || ''" class="absolute inset-0 opacity-0 cursor-pointer">
+          <template x-if="!fileName">
+            <div><i class="fas fa-cloud-upload-alt text-3xl text-blue-300/50 mb-2"></i><p class="text-blue-200/60 text-sm">Seret file ke sini atau klik untuk upload</p></div>
+          </template>
+          <template x-if="fileName">
+            <div><i class="fas fa-file text-3xl text-blue-300 mb-2"></i><p class="text-blue-200 text-sm font-medium" x-text="fileName"></p></div>
+          </template>
+        </div>
+        {% if form.file.errors %}<p class="text-red-300 text-xs mt-1">{{ form.file.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-blue-200 mb-2">Atau URL Link</label>
+        <input type="url" name="file_url" value="{{ form.file_url.value|default:'' }}" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="https://example.com/file.pdf">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-2">Urutan</label>
+          <input type="number" name="order" value="{{ form.order.value|default:'0' }}" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-6">
+        <label class="flex items-center space-x-2 cursor-pointer">
+          <input type="checkbox" name="is_published" {% if form.is_published.value or not is_update %}checked{% endif %} class="w-4 h-4 rounded bg-white/10 border-white/20 text-blue-600 focus:ring-blue-500">
+          <span class="text-sm text-blue-200">Publikasikan</span>
+        </label>
+        <label class="flex items-center space-x-2 cursor-pointer">
+          <input type="checkbox" name="allow_download" {% if form.allow_download.value or not is_update %}checked{% endif %} class="w-4 h-4 rounded bg-white/10 border-white/20 text-blue-600 focus:ring-blue-500">
+          <span class="text-sm text-blue-200">Izinkan Download</span>
+        </label>
+      </div>
+
+      <div class="flex space-x-3 pt-2">
+        <button type="submit" class="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+          <i class="fas {% if is_update %}fa-save{% else %}fa-upload{% endif %} mr-2"></i>{% if is_update %}Simpan Perubahan{% else %}Upload Materi{% endif %}
+        </button>
+        <a href="{% url 'courses:material_manage' class_obj.id %}" class="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-blue-200 text-sm font-medium transition-all text-center">Batal</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

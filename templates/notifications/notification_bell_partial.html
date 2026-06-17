@@ -1,0 +1,81 @@
+<div id="notificationBellContainer">
+  <div class="relative" x-data="{ open: false }">
+    <button @click="open = !open" @click.outside="open = false"
+      class="relative p-2 text-gray-400 hover:text-gray-200 transition-colors">
+      <i class="fas fa-bell text-xl"></i>
+      {% if count > 0 %}
+      <span class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full ring-2 ring-gray-900">
+        {% if count > 99 %}99+{% else %}{{ count }}{% endif %}
+      </span>
+      {% endif %}
+    </button>
+
+    <div x-show="open" x-cloak
+      class="absolute right-0 mt-2 w-80 sm:w-96 origin-top-right"
+      @htmx:after-request.window="if($event.detail.triggeringEvent?.headers?.['HX-Trigger']?.includes('notification')) open = false">
+      <div class="backdrop-blur-xl bg-gray-900/90 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="p-4 border-b border-white/10">
+          <div class="flex items-center justify-between">
+            <h3 class="text-white font-semibold">Notifikasi</h3>
+            <div class="flex items-center space-x-2">
+              {% if count > 0 %}
+              <button hx-post="{% url 'notifications:mark_all_read' %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-trigger="click"
+                class="text-xs px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-blue-300 transition-all">
+                <i class="fas fa-check-double mr-1"></i>Semua Dibaca
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="max-h-96 overflow-y-auto divide-y divide-white/5">
+          {% for notif in unread_notifications %}
+          <div class="p-3 hover:bg-white/5 transition-colors {% if notif.is_important %}bg-yellow-500/5{% endif %}">
+            <a href="{% if notif.link %}{{ notif.link }}{% else %}{% url 'notifications:list' %}{% endif %}"
+              class="block"
+              {% if notif.link %}hx-post="{% url 'notifications:mark_read' notif.id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-trigger="click"{% endif %}>
+              <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+                  {% if notif.notification_type == 'info' %}bg-blue-500/20 text-blue-300
+                  {% elif notif.notification_type == 'success' %}bg-green-500/20 text-green-300
+                  {% elif notif.notification_type == 'warning' %}bg-yellow-500/20 text-yellow-300
+                  {% elif notif.notification_type == 'danger' %}bg-red-500/20 text-red-300
+                  {% elif notif.notification_type == 'assignment' %}bg-indigo-500/20 text-indigo-300
+                  {% elif notif.notification_type == 'quiz' %}bg-purple-500/20 text-purple-300
+                  {% elif notif.notification_type == 'grade' %}bg-teal-500/20 text-teal-300
+                  {% elif notif.notification_type == 'announcement' %}bg-orange-500/20 text-orange-300
+                  {% elif notif.notification_type == 'forum' %}bg-cyan-500/20 text-cyan-300
+                  {% elif notif.notification_type == 'message' %}bg-sky-500/20 text-sky-300
+                  {% elif notif.notification_type == 'payment' %}bg-emerald-500/20 text-emerald-300
+                  {% elif notif.notification_type == 'certificate' %}bg-amber-500/20 text-amber-300
+                  {% else %}bg-gray-500/20 text-gray-300{% endif %}">
+                  <i class="fas fa-{% if notif.notification_type == 'info' %}info-circle{% elif notif.notification_type == 'success' %}check-circle{% elif notif.notification_type == 'warning' %}exclamation-triangle{% elif notif.notification_type == 'danger' %}times-circle{% elif notif.notification_type == 'assignment' %}book{% elif notif.notification_type == 'quiz' %}question-circle{% elif notif.notification_type == 'grade' %}star{% elif notif.notification_type == 'announcement' %}bullhorn{% elif notif.notification_type == 'forum' %}comments{% elif notif.notification_type == 'message' %}envelope{% elif notif.notification_type == 'payment' %}credit-card{% elif notif.notification_type == 'certificate' %}award{% else %}bell{% endif %} text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-white truncate">{{ notif.title }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5 line-clamp-2">{{ notif.message|truncatewords:15 }}</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ notif.created_at|timesince }} yang lalu</p>
+                </div>
+                {% if notif.is_important %}
+                <span class="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0 mt-1"></span>
+                {% endif %}
+              </div>
+            </a>
+          </div>
+          {% empty %}
+          <div class="p-8 text-center">
+            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-white/5 flex items-center justify-center">
+              <i class="fas fa-bell-slash text-gray-500 text-2xl"></i>
+            </div>
+            <p class="text-gray-400 text-sm">Tidak ada notifikasi baru</p>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="p-3 border-t border-white/10 text-center">
+          <a href="{% url 'notifications:list' %}" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            Lihat Semua Notifikasi
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Laporan - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Laporan</h1>
+      </div>
+      <a href="{% url 'reports:generate' %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+        <i class="fas fa-plus mr-2"></i>Buat Laporan
+      </a>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-6 pb-12 flex-1">
+    {% if reports %}
+    <div class="grid gap-4">
+      {% for report in reports %}
+      <a href="{% url 'reports:detail' report.pk %}" class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-4 hover:bg-white/20 dark:hover:bg-gray-900/50 transition-all duration-300 flex items-center justify-between group">
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600/30 to-purple-700/30 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-{% if report.report_type == 'attendance' %}calendar-check{% elif report.report_type == 'grade' %}chart-line{% elif report.report_type == 'payment' %}money-bill{% elif report.report_type == 'user' %}users{% elif report.report_type == 'course' %}book{% else %}graduation-cap{% endif %} text-blue-300/60"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white group-hover:text-blue-300 transition-colors">{{ report.title }}</h3>
+            <p class="text-sm text-blue-200/60">
+              {{ report.get_report_type_display }} &middot;
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {% if report.format == 'pdf' %}bg-red-500/20 text-red-200 border border-red-400/30{% elif report.format == 'excel' %}bg-green-500/20 text-green-200 border border-green-400/30{% else %}bg-gray-500/20 text-gray-200 border border-gray-400/30{% endif %}">
+                {{ report.get_format_display }}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3 text-sm">
+          {% if report.is_ready %}
+          <span class="px-2 py-1 rounded-lg bg-green-500/20 text-green-200 border border-green-400/30 text-xs">Siap</span>
+          {% else %}
+          <span class="px-2 py-1 rounded-lg bg-yellow-500/20 text-yellow-200 border border-yellow-400/30 text-xs">Diproses</span>
+          {% endif %}
+          <span class="text-blue-200/40 text-xs">{{ report.created_at|date:"d M Y H:i" }}</span>
+          <i class="fas fa-chevron-right text-blue-300/30 group-hover:text-blue-300/60 transition-colors"></i>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="mt-8 flex justify-center">
+      <div class="flex items-center space-x-2">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-all text-sm"><i class="fas fa-chevron-left"></i></a>
+        {% endif %}
+        <span class="px-4 py-2 text-white/60 text-sm">Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-all text-sm"><i class="fas fa-chevron-right"></i></a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+        <i class="fas fa-file-alt text-3xl text-blue-300/50"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-2">Belum Ada Laporan</h3>
+      <p class="text-blue-200/60 mb-6">Buat laporan pertama Anda untuk mulai melihat data.</p>
+      <a href="{% url 'reports:generate' %}" class="inline-flex px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+        <i class="fas fa-plus mr-2"></i>Buat Laporan
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

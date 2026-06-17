@@ -1,0 +1,91 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ announcement.title }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative max-w-4xl mx-auto w-full px-6 py-6">
+    <!-- Back -->
+    <a href="{% url 'announcements:announcement_list' %}" class="text-blue-300/70 hover:text-white transition-colors text-sm mb-4 inline-block">
+      <i class="fas fa-arrow-left mr-2"></i>Kembali ke Pengumuman
+    </a>
+
+    <!-- Announcement Content -->
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border {% if announcement.is_important %}border-red-400/30 bg-red-500/5{% else %}border-white/20{% endif %} overflow-hidden">
+      <!-- Header -->
+      <div class="p-8 border-b border-white/10">
+        <div class="flex items-center space-x-2 mb-3">
+          {% if announcement.is_important %}
+          <span class="px-3 py-1 rounded-lg text-xs font-medium bg-red-500/30 text-red-200 border border-red-400/30"><i class="fas fa-bullhorn mr-1"></i>Penting</span>
+          {% endif %}
+          <span class="px-3 py-1 rounded-lg text-xs font-medium bg-white/10 text-blue-200 border border-white/20">{{ announcement.get_category_display }}</span>
+          <span class="px-3 py-1 rounded-lg text-xs font-medium bg-white/10 text-blue-200 border border-white/20"><i class="fas fa-users mr-1"></i>{{ announcement.get_audience_display }}</span>
+        </div>
+        <h1 class="text-3xl font-bold text-white">{{ announcement.title }}</h1>
+        <div class="flex items-center space-x-4 mt-4 text-sm text-blue-200/50">
+          <span><i class="far fa-user mr-1"></i>{{ announcement.created_by.get_full_name|default:announcement.created_by.username|default:'Sistem' }}</span>
+          <span><i class="far fa-clock mr-1"></i>{{ announcement.created_at|date:'d M Y H:i' }}</span>
+          {% if announcement.updated_at != announcement.created_at %}
+          <span><i class="fas fa-pen mr-1"></i>Diperbarui {{ announcement.updated_at|date:'d M Y H:i' }}</span>
+          {% endif %}
+          <span><i class="far fa-eye mr-1"></i>{{ announcement.reads.count }} dibaca</span>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-8">
+        <div class="prose prose-invert max-w-none text-blue-200/80 leading-relaxed whitespace-pre-wrap">
+          {{ announcement.content|linebreaks }}
+        </div>
+
+        {% if announcement.attachment %}
+        <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <i class="fas fa-paperclip text-blue-300"></i>
+              </div>
+              <div>
+                <p class="text-white text-sm font-medium">{{ announcement.attachment.name|cut:'announcements/' }}</p>
+                <p class="text-blue-200/50 text-xs">{{ announcement.attachment.size|filesizeformat }}</p>
+              </div>
+            </div>
+            <a href="{{ announcement.attachment.url }}" target="_blank" class="px-4 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 text-sm font-medium transition-all border border-blue-400/30">
+              <i class="fas fa-download mr-1"></i>Unduh
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Other Announcements -->
+    {% if other_announcements %}
+    <div class="mt-8">
+      <h2 class="text-lg font-bold text-white mb-4">Pengumuman Lainnya</h2>
+      <div class="space-y-3">
+        {% for other in other_announcements %}
+        <a href="{% url 'announcements:announcement_detail' other.pk %}" class="block backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-xl border border-white/20 p-4 hover:bg-white/20 transition-all group">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-white font-semibold group-hover:text-blue-300 transition-colors">{{ other.title }}</h4>
+              <p class="text-blue-200/50 text-xs mt-1">{{ other.created_at|date:'d M Y' }} - {{ other.get_category_display }}</p>
+            </div>
+            <i class="fas fa-chevron-right text-blue-300/50 mt-1"></i>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

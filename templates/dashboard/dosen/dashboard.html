@@ -1,0 +1,192 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+{% block title %}Dashboard Dosen - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-display font-bold text-white drop-shadow-lg">
+                Dashboard Dosen
+            </h1>
+            <p class="text-white/70 text-sm mt-1">Selamat datang, <span class="font-semibold text-white">{{ user.get_full_name|default:user.username }}</span></p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="window.location.href='{% url 'dosen:matakuliah' %}'" class="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-xl text-sm font-medium transition-all duration-200 border border-white/20 flex items-center gap-2">
+                <i class="fas fa-book-open"></i> Kelas Saya
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="group relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:bg-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Kelas Diampu</p>
+                    <p class="text-3xl font-bold text-white mt-1 font-display">{{ total_classes }}</p>
+                    <p class="text-white/40 text-xs mt-1">Total kelas yang diampu</p>
+                </div>
+                <div class="h-12 w-12 rounded-xl bg-primary-500/20 backdrop-blur-sm flex items-center justify-center text-primary-300 text-xl group-hover:scale-110 transition-transform">
+                    <i class="fas fa-door-open"></i>
+                </div>
+            </div>
+        </div>
+        <div class="group relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:bg-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Total Mahasiswa</p>
+                    <p class="text-3xl font-bold text-white mt-1 font-display">{{ total_students }}</p>
+                    <p class="text-white/40 text-xs mt-1">Mahasiswa bimbingan</p>
+                </div>
+                <div class="h-12 w-12 rounded-xl bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center text-emerald-300 text-xl group-hover:scale-110 transition-transform">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+        <div class="group relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:bg-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Tugas Menunggu</p>
+                    <p class="text-3xl font-bold text-white mt-1 font-display">{{ pending_assignments }}</p>
+                    <p class="text-white/40 text-xs mt-1">Tugas perlu diperiksa</p>
+                </div>
+                <div class="h-12 w-12 rounded-xl bg-amber-500/20 backdrop-blur-sm flex items-center justify-center text-amber-300 text-xl group-hover:scale-110 transition-transform">
+                    <i class="fas fa-tasks"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <h2 class="text-lg font-semibold text-white mb-4">Akses Cepat</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{% url 'dosen:matakuliah' %}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-primary-500/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-primary-500/20 flex items-center justify-center text-primary-300 text-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <span class="text-white text-sm font-medium">Kelas Saya</span>
+                    <span class="text-white/40 text-[10px]">Lihat semua kelas</span>
+                </a>
+                <a href="{% url 'dosen:presensi' %}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-emerald-500/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <span class="text-white text-sm font-medium">Presensi</span>
+                    <span class="text-white/40 text-[10px]">Rekap kehadiran</span>
+                </a>
+                <a href="{% url 'dosen:tugas' %}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-amber-500/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-300 text-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <span class="text-white text-sm font-medium">Tugas</span>
+                    <span class="text-white/40 text-[10px]">Kelola penugasan</span>
+                </a>
+                <a href="{% url 'dosen:kuis' %}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-purple-500/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-300 text-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <span class="text-white text-sm font-medium">Kuis</span>
+                    <span class="text-white/40 text-[10px]">Buat & kelola kuis</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <h2 class="text-lg font-semibold text-white mb-4">Kelas Aktif</h2>
+            <div class="space-y-3" id="my-classes-list">
+                {% for cls in my_classes %}
+                <a href="{% url 'dosen:matakuliah' %}" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 group border border-transparent hover:border-primary-500/30">
+                    <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                        {{ cls.course.code|slice:":3" }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-sm font-medium truncate">{{ cls.course.name }}</p>
+                        <p class="text-white/40 text-xs truncate">{{ cls.code }} - {{ cls.name }}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/20 text-emerald-300 whitespace-nowrap">
+                            {{ cls.semester }}
+                        </span>
+                        <i class="fas fa-chevron-right text-white/30 group-hover:text-white/60 transition-colors text-xs"></i>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="text-center py-8">
+                    <div class="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-book-open text-white/30 text-2xl"></i>
+                    </div>
+                    <p class="text-white/50 text-sm">Belum ada kelas yang diampu</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white">Presensi Terbaru</h2>
+                <a href="{% url 'dosen:presensi' %}" class="text-white/50 hover:text-white text-xs transition-colors">Lihat Semua</a>
+            </div>
+            <div class="space-y-3">
+                {% for session in recent_attendance %}
+                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
+                    <div class="h-9 w-9 rounded-lg bg-white/5 flex items-center justify-center text-white/60 flex-shrink-0">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-sm font-medium truncate">{{ session.class_meta.course.name }}</p>
+                        <p class="text-white/40 text-xs">{{ session.date|date:"d M Y" }} - {{ session.topic|default:"-" }}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-medium
+                        {% if session.is_active %}bg-emerald-500/20 text-emerald-300
+                        {% else %}bg-white/10 text-white/50{% endif %}">
+                        {{ session.is_active|yesno:"Aktif,Selesai" }}
+                    </span>
+                </div>
+                {% empty %}
+                <p class="text-white/40 text-sm text-center py-4">Belum ada sesi presensi</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white">Rata-rata Presensi</h2>
+                <span class="text-white/40 text-xs">Semua kelas</span>
+            </div>
+            <div class="flex flex-col items-center py-4">
+                <div class="relative h-32 w-32 mb-4">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5"></circle>
+                        <circle cx="18" cy="18" r="15.5" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-dasharray="100"
+                            :stroke-dashoffset="100 - ({{ attendance_rate|default:0 }} / 100 * 100)"
+                            class="text-emerald-400"
+                            stroke-linecap="round"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-3xl font-bold text-white font-display">{{ attendance_rate|default:0 }}%</span>
+                    </div>
+                </div>
+                <p class="text-white/50 text-xs">Tingkat kehadiran rata-rata</p>
+            </div>
+
+            <div class="mt-4 space-y-3">
+                {% for cls in my_classes|slice:":3" %}
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-white/70 truncate mr-2">{{ cls.course.name|truncatechars:30 }}</span>
+                        <span class="text-white/50 flex-shrink-0">-</span>
+                    </div>
+                    <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full bg-emerald-400/60" style="width: 0%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

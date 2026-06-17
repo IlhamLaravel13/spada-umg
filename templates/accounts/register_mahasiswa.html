@@ -1,0 +1,178 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Daftar Mahasiswa - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden"
+     x-data="{ showPassword1: false, showPassword2: false, loading: false }">
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative w-full max-w-lg">
+    <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/30 p-8">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white">Daftar Mahasiswa</h2>
+        <p class="text-blue-200/70 text-sm">Buat akun mahasiswa SPADA UMG</p>
+      </div>
+
+      {% if messages %}
+      <div class="mb-4 space-y-2">
+        {% for message in messages %}
+        <div class="px-4 py-3 rounded-lg text-sm font-medium backdrop-blur-md 
+          {% if message.tags == 'success' %}bg-green-500/20 text-green-200 border border-green-400/30
+          {% elif message.tags == 'error' %}bg-red-500/20 text-red-200 border border-red-400/30
+          {% else %}bg-blue-500/20 text-blue-200 border border-blue-400/30{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-blue-200 mb-1">Nama Depan</label>
+            <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}"
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+              placeholder="Nama depan">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-blue-200 mb-1">Nama Belakang</label>
+            <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}"
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+              placeholder="Nama belakang">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1">Username <span class="text-red-300">*</span></label>
+          <input type="text" name="username" value="{{ form.username.value|default:'' }}" required
+            class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="Pilih username" autocomplete="username">
+          {% if form.username.errors %}
+          <p class="mt-1 text-xs text-red-300">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1">Email <span class="text-red-300">*</span></label>
+          <input type="email" name="email" value="{{ form.email.value|default:'' }}" required
+            class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="contoh@student.umg.ac.id" autocomplete="email">
+          {% if form.email.errors %}
+          <p class="mt-1 text-xs text-red-300">{{ form.email.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1">NIM <span class="text-red-300">*</span></label>
+          <input type="text" name="nim" value="{{ form.nim.value|default:'' }}" required
+            class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="Masukkan NIM">
+          {% if form.nim.errors %}
+          <p class="mt-1 text-xs text-red-300">{{ form.nim.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1">No. Telepon</label>
+          <input type="text" name="phone" value="{{ form.phone.value|default:'' }}"
+            class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="08xxxxxxxxxx">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1">Password <span class="text-red-300">*</span></label>
+          <div class="relative">
+            <input :type="showPassword1 ? 'text' : 'password'" name="password1" required
+              class="w-full px-4 py-2.5 pr-12 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+              placeholder="Minimal 8 karakter" autocomplete="new-password">
+            <button type="button" @click="showPassword1 = !showPassword1" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <svg x-show="!showPassword1" class="h-5 w-5 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <svg x-show="showPassword1" class="h-5 w-5 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+              </svg>
+            </button>
+          </div>
+          {% if form.password1.errors %}
+          <p class="mt-1 text-xs text-red-300">{{ form.password1.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1">Konfirmasi Password <span class="text-red-300">*</span></label>
+          <div class="relative">
+            <input :type="showPassword2 ? 'text' : 'password'" name="password2" required
+              class="w-full px-4 py-2.5 pr-12 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+              placeholder="Ulangi password" autocomplete="new-password">
+            <button type="button" @click="showPassword2 = !showPassword2" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <svg x-show="!showPassword2" class="h-5 w-5 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <svg x-show="showPassword2" class="h-5 w-5 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          {% if form.password2.errors %}
+          <p class="mt-1 text-xs text-red-300">{{ form.password2.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <label class="flex items-start space-x-3 cursor-pointer">
+          <input type="checkbox" name="agree_terms" required
+            class="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-blue-500/50 focus:ring-offset-0 cursor-pointer">
+          <span class="text-sm text-blue-200/70">
+            Saya menyetujui 
+            <a href="#" class="text-blue-300 hover:text-blue-200 underline">Syarat & Ketentuan</a> 
+            dan 
+            <a href="#" class="text-blue-300 hover:text-blue-200 underline">Kebijakan Privasi</a>
+          </span>
+        </label>
+        {% if form.agree_terms.errors %}
+        <p class="text-xs text-red-300">{{ form.agree_terms.errors.0 }}</p>
+        {% endif %}
+
+        <button type="submit"
+          :disabled="loading"
+          @click="loading = true"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+          <span x-show="!loading">Daftar Mahasiswa</span>
+          <span x-show="loading" class="flex items-center space-x-2">
+            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span>Mendaftarkan...</span>
+          </span>
+        </button>
+      </form>
+
+      <div class="text-center mt-6 pt-4 border-t border-white/10">
+        <p class="text-blue-200/70 text-sm">
+          Sudah punya akun?
+          <a href="{% url 'accounts:login' %}" class="text-blue-300 hover:text-blue-200 font-semibold transition-colors">
+            Masuk
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Courses Saya - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-1/2 left-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Courses Saya</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span class="px-3 py-1.5 rounded-xl text-sm bg-blue-500/20 text-blue-200 border border-blue-400/30">
+          <i class="fas fa-book-open mr-1"></i>{{ total_enrolled }} Course
+        </span>
+        <div class="relative" x-data="{ searchOpen: false }">
+          <button @click="searchOpen = !searchOpen" class="p-2 rounded-xl hover:bg-white/10 text-blue-300 transition-all">
+            <i class="fas fa-search"></i>
+          </button>
+          <div x-show="searchOpen" @click.outside="searchOpen = false" class="absolute right-0 mt-2 w-72" x-cloak>
+            <input type="text" id="searchInput" placeholder="Cari course..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-sm pointer-events-none"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-6 pb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="courseGrid">
+      {% for enrollment in enrollments %}
+      {% with class_obj=enrollment.class_enrolled %}
+      <a href="{% url 'courses:course_detail' class_obj.pk %}" class="group backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 hover:bg-white/20 dark:hover:bg-gray-900/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
+            <i class="fas fa-book-open text-lg"></i>
+          </div>
+          <span class="px-2 py-1 rounded-lg text-xs font-medium bg-green-500/20 text-green-300 border border-green-400/30">{{ enrollment.get_status_display }}</span>
+        </div>
+        <h3 class="text-lg font-bold text-white group-hover:text-blue-300 transition-colors mb-1">{{ class_obj.course.name }}</h3>
+        <p class="text-blue-200/60 text-sm mb-1">{{ class_obj.course.code }} - {{ class_obj.name }}</p>
+        <p class="text-blue-200/40 text-xs mb-4">{{ class_obj.semester }}</p>
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center space-x-2 text-blue-200/60">
+            <i class="fas fa-file-alt text-xs"></i>
+            <span>{{ enrollment.material_count }} Materi</span>
+          </div>
+          <div class="flex items-center space-x-1 text-blue-200/50 text-xs">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>{{ class_obj.lecturer.get_full_name|default:class_obj.lecturer.username|default:'-' }}</span>
+          </div>
+        </div>
+      </a>
+      {% endwith %}
+      {% empty %}
+      <div class="col-span-full">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+            <i class="fas fa-book-open text-3xl text-blue-300/50"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Belum Ada Course</h3>
+          <p class="text-blue-200/60 mb-6">Anda belum terdaftar di course manapun. Silakan hubungi admin untuk pendaftaran.</p>
+          <a href="{% url 'dashboard:redirect' %}" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+            <i class="fas fa-arrow-left"></i><span>Kembali ke Dashboard</span>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('searchInput')?.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#courseGrid > a').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+</script>
+{% endblock %}

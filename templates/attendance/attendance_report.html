@@ -1,0 +1,125 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Laporan Absensi - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 py-6">
+    <!-- Header -->
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <a href="{% url 'attendance:session_list' %}" class="text-blue-300/70 hover:text-white transition-colors text-sm mb-2 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali
+          </a>
+          <h1 class="text-2xl font-bold text-white mt-1">Laporan Absensi</h1>
+        </div>
+      </div>
+
+      <!-- Filter Form -->
+      <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm text-blue-200/70 mb-1">Kelas</label>
+          <select name="class_id" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="" class="bg-gray-800">-- Pilih Kelas --</option>
+            {% for class_obj in classes %}
+            <option value="{{ class_obj.id }}" class="bg-gray-800" {% if selected_class_id|stringformat:'s' == class_obj.id|stringformat:'s' %}selected{% endif %}>{{ class_obj.course.code }} - {{ class_obj.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-blue-200/70 mb-1">Tanggal Mulai</label>
+          <input type="date" name="start_date" value="{{ start_date|default:'' }}"
+            class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+        </div>
+        <div>
+          <label class="block text-sm text-blue-200/70 mb-1">Tanggal Akhir</label>
+          <input type="date" name="end_date" value="{{ end_date|default:'' }}"
+            class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+        </div>
+        <div class="flex items-end">
+          <button type="submit" class="w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+            <i class="fas fa-search mr-1"></i>Tampilkan
+          </button>
+        </div>
+      </form>
+    </div>
+
+    {% if report %}
+    <!-- Report Content -->
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden">
+      <div class="p-6 border-b border-white/10">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-white">{{ report.class.course.code }} - {{ report.class.name }}</h2>
+            <p class="text-blue-200/60 text-sm">{{ report.class.course.name }}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-blue-200/50 text-sm">Total Mahasiswa: <span class="text-white font-semibold">{{ report.total_students }}</span></p>
+            <p class="text-blue-200/50 text-sm">Total Sesi: <span class="text-white font-semibold">{{ report.sessions|length }}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-white/10 text-left">
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">No</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">NIM</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">Nama</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">Hadir</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">Terlambat</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">Sakit</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">Izin</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">Alpa</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase">%</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in report.reports %}
+            <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+              <td class="px-6 py-4 text-sm text-white">{{ forloop.counter }}</td>
+              <td class="px-6 py-4 text-sm text-blue-200/70">{{ item.student.nim|default:'-' }}</td>
+              <td class="px-6 py-4 text-sm text-white font-medium">{{ item.student.get_full_name|default:item.student.username }}</td>
+              <td class="px-6 py-4 text-sm text-green-300">{{ item.present }}</td>
+              <td class="px-6 py-4 text-sm text-yellow-300">{{ item.late }}</td>
+              <td class="px-6 py-4 text-sm text-blue-300">{{ item.sick }}</td>
+              <td class="px-6 py-4 text-sm text-purple-300">{{ item.excused }}</td>
+              <td class="px-6 py-4 text-sm text-red-300">{{ item.absent }}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-semibold {% if item.percentage >= 75 %}text-green-300{% elif item.percentage >= 50 %}text-yellow-300{% else %}text-red-300{% endif %}">
+                    {{ item.percentage }}%
+                  </span>
+                  <div class="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 {% if item.percentage >= 75 %}bg-green-400{% elif item.percentage >= 50 %}bg-yellow-400{% else %}bg-red-400{% endif %}" style="width: {{ item.percentage }}%"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+        <i class="fas fa-chart-bar text-2xl text-blue-300/50"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-2">Pilih Kelas untuk Melihat Laporan</h3>
+      <p class="text-blue-200/60">Pilih kelas dan rentang tanggal untuk menampilkan laporan absensi.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

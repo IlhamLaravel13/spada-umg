@@ -1,0 +1,190 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}AI Assistant - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 h-screen overflow-hidden{% endblock %}
+
+{% block content %}
+<div class="h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-3 flex-shrink-0">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <i class="fas fa-robot text-white text-sm"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-white">AI Assistant</h1>
+            {% if active_conversation %}
+            <p class="text-xs text-blue-200/50 truncate max-w-[200px]">{{ active_conversation.title }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <a href="{% url 'ai_assistant:history' %}" class="p-2 rounded-xl hover:bg-white/10 text-blue-300/70 hover:text-blue-200 transition-all" title="Riwayat">
+          <i class="fas fa-history"></i>
+        </a>
+        <form method="post" action="{% url 'ai_assistant:new_conversation' %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="p-2 rounded-xl hover:bg-white/10 text-blue-300/70 hover:text-blue-200 transition-all" title="Percakapan Baru">
+            <i class="fas fa-plus"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative flex-1 flex overflow-hidden">
+    <aside class="w-64 flex-shrink-0 border-r border-white/10 overflow-y-auto hidden md:block bg-white/5 backdrop-blur-sm">
+      <div class="p-3 space-y-1">
+        {% for conv in conversations %}
+        <a href="?conversation={{ conv.id }}" class="flex items-center space-x-2 px-3 py-2 rounded-xl text-sm {% if active_conversation and active_conversation.id == conv.id %}bg-blue-500/20 text-blue-200 border border-blue-400/30{% else %}text-blue-200/60 hover:bg-white/10 hover:text-blue-200{% endif %} transition-all group">
+          <i class="fas fa-comment text-xs"></i>
+          <span class="truncate flex-1">{{ conv.title }}</span>
+          <form method="post" action="{% url 'ai_assistant:delete_conversation' conv.id %}" class="hidden group-hover:block" onsubmit="return confirm('Hapus percakapan ini?')">
+            {% csrf_token %}
+            <button type="submit" class="text-red-400/50 hover:text-red-400 text-xs"><i class="fas fa-times"></i></button>
+          </form>
+        </a>
+        {% empty %}
+        <p class="text-blue-200/40 text-xs text-center py-4">Belum ada percakapan</p>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col">
+      <div class="flex-1 overflow-y-auto px-4 py-6 space-y-2" id="chatMessages" x-data="{ loading: false }" x-init="
+        $el.scrollTop = $el.scrollHeight;
+        document.getElementById('chatForm')?.addEventListener('submit', function(e) {
+          loading = true;
+          setTimeout(() => $el.scrollTop = $el.scrollHeight, 100);
+        });
+      ">
+        {% if messages %}
+          {% for msg in messages %}
+            {% if msg.role == 'user' %}
+              {% include 'ai_assistant/_message_partial.html' with is_user=True %}
+            {% elif msg.role == 'assistant' %}
+              {% include 'ai_assistant/_message_partial.html' with is_user=False %}
+            {% endif %}
+          {% endfor %}
+        {% else %}
+        <div class="flex items-center justify-center h-full">
+          <div class="text-center max-w-md">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center">
+              <i class="fas fa-robot text-4xl text-blue-300/50"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-2">AI Assistant SPADA UMG</h2>
+            <p class="text-blue-200/60 text-sm mb-6">Tanyakan apapun seputar perkuliahan, minta ringkasan materi, atau dapatkan rekomendasi belajar.</p>
+            <div class="grid grid-cols-2 gap-3 text-left">
+              <button type="button" onclick="document.getElementById('chatInput').value='Jelaskan tentang sistem informasi akademik'; document.getElementById('chatForm').requestSubmit();" class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-blue-200/70 text-xs transition-all text-left leading-relaxed">
+                <i class="fas fa-graduation-cap mr-1"></i> Jelaskan sistem informasi akademik
+              </button>
+              <button type="button" onclick="document.getElementById('chatInput').value='Bantu saya memahami algoritma sorting'; document.getElementById('chatForm').requestSubmit();" class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-blue-200/70 text-xs transition-all text-left leading-relaxed">
+                <i class="fas fa-code mr-1"></i> Bantu saya memahami algoritma sorting
+              </button>
+              <button type="button" onclick="document.getElementById('chatInput').value='Rekomendasikan materi belajar untuk pemrograman web'; document.getElementById('chatForm').requestSubmit();" class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-blue-200/70 text-xs transition-all text-left leading-relaxed">
+                <i class="fas fa-book mr-1"></i> Rekomendasikan materi belajar pemrograman web
+              </button>
+              <button type="button" onclick="document.getElementById('chatInput').value='Buatkan ringkasan tentang manajemen proyek'; document.getElementById('chatForm').requestSubmit();" class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-blue-200/70 text-xs transition-all text-left leading-relaxed">
+                <i class="fas fa-file-alt mr-1"></i> Buatkan ringkasan tentang manajemen proyek
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div id="typingIndicator" class="hidden justify-start mb-4">
+          <div class="bg-white/10 dark:bg-gray-800/50 backdrop-blur-md rounded-2xl rounded-bl-sm px-4 py-3 border border-white/10">
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                <i class="fas fa-robot text-xs text-white"></i>
+              </div>
+              <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-blue-300/50 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                <div class="w-2 h-2 bg-blue-300/50 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-2 h-2 bg-blue-300/50 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="hxMessages"></div>
+      </div>
+
+      <div class="flex-shrink-0 border-t border-white/10 bg-white/5 backdrop-blur-md p-4">
+        <form id="chatForm" method="post" action="{% url 'ai_assistant:send_message' %}" hx-post="{% url 'ai_assistant:send_message' %}" hx-target="#hxMessages" hx-swap="beforeend" hx-trigger="submit" hx-on::before-request="
+          const input = document.getElementById('chatInput');
+          const msg = input.value.trim();
+          if(!msg) return false;
+          const container = document.getElementById('chatMessages');
+          container.insertAdjacentHTML('beforeend', '<div class=\'flex justify-end mb-4\'><div class=\'max-w-[75%] bg-gradient-to-l from-blue-600 to-purple-600 rounded-2xl rounded-br-sm px-4 py-3 shadow-lg\'><p class=\'text-white text-sm leading-relaxed\'>'+msg.replace(/</g,'&lt;')+'</p></div></div>');
+          input.value = '';
+          container.scrollTop = container.scrollHeight;
+          document.getElementById('typingIndicator').classList.remove('hidden');
+          container.scrollTop = container.scrollHeight;
+        " hx-on::after-request="
+          document.getElementById('typingIndicator').classList.add('hidden');
+          document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        " hx-on::after-onload="
+          const data = event.detail.xhr.response;
+          try {
+            const json = JSON.parse(data);
+            if(json.conversation_id) {
+              const url = new URL(window.location);
+              url.searchParams.set('conversation', json.conversation_id);
+              window.history.pushState({}, '', url);
+            }
+          } catch(e) {}
+        ">
+          {% csrf_token %}
+          <input type="hidden" name="conversation_id" value="{% if active_conversation %}{{ active_conversation.id }}{% endif %}">
+          <div class="flex items-center space-x-3">
+            <div class="flex-1 relative">
+              <input id="chatInput" type="text" name="message" placeholder="Tanyakan sesuatu..." class="w-full pl-5 pr-12 py-3 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" autocomplete="off" required>
+              <button type="button" onclick="document.getElementById('chatInput').value='';" class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-300/30 hover:text-blue-300/60 transition-colors">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <button type="submit" class="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.elt.id === 'chatForm') {
+      const container = document.getElementById('chatMessages');
+      container.scrollTop = container.scrollHeight;
+    }
+  });
+
+  document.getElementById('chatInput')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('chatForm').requestSubmit();
+    }
+  });
+
+  document.body.addEventListener('htmx:beforeRequest', function(evt) {
+    if (evt.detail.elt.id === 'chatForm') {
+      document.getElementById('typingIndicator')?.classList.remove('hidden');
+    }
+  });
+</script>
+{% endblock %}

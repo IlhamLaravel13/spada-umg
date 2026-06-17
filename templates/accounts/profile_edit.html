@@ -1,0 +1,180 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profil - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gray-50 dark:bg-gray-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+     x-data="{ previewUrl: '{{ user.avatar.url|default:'' }}', previewing: false }">
+
+  <div class="mb-6">
+    <a href="{% url 'accounts:profile' %}"
+      class="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Kembali ke profil
+    </a>
+  </div>
+
+  <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 p-6 sm:p-8">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Profil</h1>
+
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+      {% for message in messages %}
+      <div class="px-4 py-3 rounded-lg text-sm font-medium 
+        {% if message.tags == 'success' %}bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800
+        {% elif message.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800
+        {% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" 
+          hx-encoding="multipart/form-data"
+          hx-post="{% url 'accounts:profile_edit' %}" hx-target="this" hx-swap="outerHTML">
+      {% csrf_token %}
+
+      <!-- Avatar -->
+      <div class="flex flex-col sm:flex-row items-center gap-6 mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
+        <div class="relative group">
+          <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-0.5 shadow-lg">
+            <div class="w-full h-full rounded-full bg-white dark:bg-gray-800 overflow-hidden">
+              <template x-if="previewing">
+                <img :src="previewUrl" class="w-full h-full object-cover">
+              </template>
+              <template x-if="!previewing">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center">
+                  <span class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                  </span>
+                </div>
+                {% endif %}
+              </template>
+            </div>
+          </div>
+        </div>
+        <div class="flex-1 text-center sm:text-left">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Foto Profil</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PNG, JPG, GIF. Maksimal 2MB.</p>
+          <div class="mt-3">
+            <label class="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium cursor-pointer transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              Pilih Foto
+              <input type="file" name="avatar" accept="image/*" class="hidden"
+                @change="const file = $event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { previewUrl = e.target.result; previewing = true; }; reader.readAsDataURL(file); }">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Info -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Depan</label>
+          <input type="text" name="first_name" value="{{ form.first_name.value|default:user.first_name }}"
+            class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="Nama depan">
+          {% if form.first_name.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ form.first_name.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Belakang</label>
+          <input type="text" name="last_name" value="{{ form.last_name.value|default:user.last_name }}"
+            class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="Nama belakang">
+          {% if form.last_name.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ form.last_name.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. Telepon</label>
+          <input type="text" name="phone" value="{{ form.phone.value|default:user.phone }}"
+            class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="08xxxxxxxxxx">
+          {% if form.phone.errors %}
+          <p class="mt-1 text-xs text-red-500">{{ form.phone.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fakultas</label>
+          <select name="faculty"
+            class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            hx-get="/academics/api/study-programs/?faculty_id=" hx-target="#id_study_program" hx-trigger="change" hx-swap="innerHTML">
+            <option value="">--- Pilih Fakultas ---</option>
+            {% for faculty in faculties %}
+            <option value="{{ faculty.id }}" {% if user.faculty_id == faculty.id %}selected{% endif %}>{{ faculty.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Program Studi</label>
+          <select name="study_program" id="id_study_program"
+            class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200">
+            <option value="">--- Pilih Program Studi ---</option>
+            {% if user.study_program %}
+            <option value="{{ user.study_program.id }}" selected>{{ user.study_program.name }}</option>
+            {% endif %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun Masuk</label>
+          <input type="number" name="enrollment_year" value="{{ form.enrollment_year.value|default:user.enrollment_year }}"
+            class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+            placeholder="2024" min="2000" max="2030">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tema</label>
+          <select name="theme_preference"
+            class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200">
+            <option value="light" {% if user.theme_preference == 'light' %}selected{% endif %}>Light</option>
+            <option value="dark" {% if user.theme_preference == 'dark' %}selected{% endif %}>Dark</option>
+          </select>
+        </div>
+        <div class="flex items-center">
+          <label class="flex items-center space-x-3 cursor-pointer">
+            <input type="checkbox" name="email_notifications" value="true"
+              class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              {% if form.email_notifications.value or user.email_notifications %}checked{% endif %}>
+            <span class="text-sm text-gray-700 dark:text-gray-300">Aktifkan notifikasi email</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Bio -->
+      <div class="mt-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio</label>
+        <textarea name="bio" rows="4"
+          class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+          placeholder="Ceritakan tentang diri Anda...">{{ form.bio.value|default:user.bio }}</textarea>
+        {% if form.bio.errors %}
+        <p class="mt-1 text-xs text-red-500">{{ form.bio.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Submit -->
+      <div class="mt-8 flex items-center justify-end space-x-4">
+        <a href="{% url 'accounts:profile' %}"
+          class="px-6 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          Batal
+        </a>
+        <button type="submit"
+          class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

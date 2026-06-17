@@ -1,0 +1,72 @@
+<div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden hover:border-white/30 transition-all duration-300 group"
+  id="notification-{{ notification.pk }}" {% if notification.is_read %}x-data="{}"{% endif %}>
+  <div class="p-5">
+    <div class="flex items-start space-x-4">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+        {% if notification.notification_type == 'info' %}bg-blue-500/20 text-blue-300
+        {% elif notification.notification_type == 'success' %}bg-green-500/20 text-green-300
+        {% elif notification.notification_type == 'warning' %}bg-yellow-500/20 text-yellow-300
+        {% elif notification.notification_type == 'danger' %}bg-red-500/20 text-red-300
+        {% elif notification.notification_type == 'assignment' %}bg-indigo-500/20 text-indigo-300
+        {% elif notification.notification_type == 'quiz' %}bg-purple-500/20 text-purple-300
+        {% elif notification.notification_type == 'grade' %}bg-teal-500/20 text-teal-300
+        {% elif notification.notification_type == 'announcement' %}bg-orange-500/20 text-orange-300
+        {% elif notification.notification_type == 'forum' %}bg-cyan-500/20 text-cyan-300
+        {% elif notification.notification_type == 'message' %}bg-sky-500/20 text-sky-300
+        {% elif notification.notification_type == 'payment' %}bg-emerald-500/20 text-emerald-300
+        {% elif notification.notification_type == 'certificate' %}bg-amber-500/20 text-amber-300
+        {% else %}bg-gray-500/20 text-gray-300{% endif %}">
+        <i class="fas fa-{% if notification.notification_type == 'info' %}info-circle{% elif notification.notification_type == 'success' %}check-circle{% elif notification.notification_type == 'warning' %}exclamation-triangle{% elif notification.notification_type == 'danger' %}times-circle{% elif notification.notification_type == 'assignment' %}book{% elif notification.notification_type == 'quiz' %}question-circle{% elif notification.notification_type == 'grade' %}star{% elif notification.notification_type == 'announcement' %}bullhorn{% elif notification.notification_type == 'forum' %}comments{% elif notification.notification_type == 'message' %}envelope{% elif notification.notification_type == 'payment' %}credit-card{% elif notification.notification_type == 'certificate' %}award{% else %}bell{% endif %}"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center space-x-2 mb-1">
+          <span class="px-2 py-0.5 rounded text-xs font-medium
+            {% if notification.notification_type == 'info' %}bg-blue-500/20 text-blue-200 border border-blue-400/20
+            {% elif notification.notification_type == 'success' %}bg-green-500/20 text-green-200 border border-green-400/20
+            {% elif notification.notification_type == 'warning' %}bg-yellow-500/20 text-yellow-200 border border-yellow-400/20
+            {% elif notification.notification_type == 'danger' %}bg-red-500/20 text-red-200 border border-red-400/20
+            {% elif notification.notification_type == 'assignment' %}bg-indigo-500/20 text-indigo-200 border border-indigo-400/20
+            {% elif notification.notification_type == 'quiz' %}bg-purple-500/20 text-purple-200 border border-purple-400/20
+            {% elif notification.notification_type == 'grade' %}bg-teal-500/20 text-teal-200 border border-teal-400/20
+            {% elif notification.notification_type == 'announcement' %}bg-orange-500/20 text-orange-200 border border-orange-400/20
+            {% elif notification.notification_type == 'forum' %}bg-cyan-500/20 text-cyan-200 border border-cyan-400/20
+            {% elif notification.notification_type == 'message' %}bg-sky-500/20 text-sky-200 border border-sky-400/20
+            {% elif notification.notification_type == 'payment' %}bg-emerald-500/20 text-emerald-200 border border-emerald-400/20
+            {% elif notification.notification_type == 'certificate' %}bg-amber-500/20 text-amber-200 border border-amber-400/20
+            {% else %}bg-gray-500/20 text-gray-200 border border-gray-400/20{% endif %}">
+            {{ notification.get_notification_type_display }}
+          </span>
+          {% if notification.is_important %}
+          <span class="px-2 py-0.5 rounded text-xs font-medium bg-yellow-500/30 text-yellow-200 border border-yellow-400/30">Penting</span>
+          {% endif %}
+          {% if not notification.is_read %}
+          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+          {% endif %}
+        </div>
+        <h3 class="text-base font-bold text-white group-hover:text-blue-300 transition-colors">
+          {% if notification.link %}
+          <a href="{{ notification.link }}" hx-post="{% url 'notifications:mark_read' notification.pk %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#notification-{{ notification.pk }}" hx-swap="outerHTML">{{ notification.title }}</a>
+          {% else %}
+          {{ notification.title }}
+          {% endif %}
+        </h3>
+        <p class="text-sm text-blue-200/60 mt-1">{{ notification.message }}</p>
+        <div class="flex items-center space-x-3 mt-3 text-xs text-blue-200/50">
+          <span><i class="far fa-clock mr-1"></i>{{ notification.created_at|date:'d M Y H:i' }}</span>
+          <span><i class="far fa-clock mr-1"></i>{{ notification.created_at|timesince }} yang lalu</span>
+          {% if notification.sent_email %}
+          <span><i class="fas fa-envelope mr-1"></i>Email terkirim</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex items-center space-x-1 ml-4">
+        {% if not notification.is_read %}
+        <button hx-post="{% url 'notifications:mark_read' notification.pk %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#notification-{{ notification.pk }}" hx-swap="outerHTML"
+          class="p-1.5 rounded-lg hover:bg-white/10 text-blue-300/70 hover:text-blue-200 transition-all" title="Tandai Dibaca">
+          <i class="fas fa-check text-xs"></i>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

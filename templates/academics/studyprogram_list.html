@@ -1,0 +1,92 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Study Programs - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ showCreate: false, facultyFilter: '{{ request.GET.faculty|default:'' }}' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Study Programs</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <select x-model="facultyFilter" @change="window.location.href = facultyFilter ? '?faculty=' + facultyFilter : '?'"
+          class="px-4 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+          <option value="" class="bg-gray-800">All Faculties</option>
+          {% for f in faculties %}
+          <option value="{{ f.id }}" class="bg-gray-800" {% if request.GET.faculty|stringformat:'s' == f.id|stringformat:'s' %}selected{% endif %}>{{ f.name }}</option>
+          {% endfor %}
+        </select>
+        {% if user.is_authenticated %}
+        <button @click="showCreate = true"
+          class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center space-x-2">
+          <i class="fas fa-plus"></i><span>Add Program</span>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-6 pb-12">
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-white/10">
+              <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Code</th>
+              <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Name</th>
+              <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Faculty</th>
+              <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Degree</th>
+              <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Head</th>
+              <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Status</th>
+              <th class="text-right px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            {% for sp in study_programs %}
+            <tr class="hover:bg-white/5 transition-colors" x-data="{ open: false }">
+              <td class="px-6 py-4 font-mono text-sm text-blue-300 font-semibold">{{ sp.code }}</td>
+              <td class="px-6 py-4 text-white font-medium">{{ sp.name }}</td>
+              <td class="px-6 py-4 text-blue-200/70 text-sm">{{ sp.faculty.name }}</td>
+              <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-200">{{ sp.get_degree_display }}</span></td>
+              <td class="px-6 py-4 text-blue-200/70 text-sm">{{ sp.head|default:'-' }}</td>
+              <td class="px-6 py-4">{% if sp.is_active %}<span class="text-green-300 text-sm">Active</span>{% else %}<span class="text-red-300 text-sm">Inactive</span>{% endif %}</td>
+              <td class="px-6 py-4 text-right">
+                <a href="{% url 'academics:studyprogram_update' sp.pk %}" class="p-2 rounded-lg hover:bg-white/10 text-yellow-300 transition-all" title="Edit"><i class="fas fa-pen"></i></a>
+                <button @click="open = true" class="p-2 rounded-lg hover:bg-white/10 text-red-300 transition-all" title="Delete"><i class="fas fa-trash"></i></button>
+                <div x-show="open" class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
+                  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="open = false"></div>
+                  <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/50 rounded-2xl border border-white/20 p-6 max-w-md w-full mx-4">
+                    <div class="text-center">
+                      <h3 class="text-xl font-bold text-white mb-2">Delete Study Program?</h3>
+                      <p class="text-blue-200/70 text-sm mb-6">Delete <span class="text-white font-semibold">{{ sp.name }}</span>?</p>
+                      <div class="flex space-x-3 justify-center">
+                        <button @click="open = false" class="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm">Cancel</button>
+                        <form method="post" action="{% url 'academics:studyprogram_delete' sp.pk %}">{% csrf_token %}
+                          <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white text-sm shadow-lg shadow-red-500/25"><i class="fas fa-trash mr-2"></i>Delete</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="px-6 py-12 text-center text-blue-200/50"><i class="fas fa-book text-4xl mb-3"></i><p>No study programs found.</p></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

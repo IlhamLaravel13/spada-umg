@@ -1,0 +1,159 @@
+{% load core_tags %}
+
+<aside class="fixed left-0 top-16 bottom-0 z-20 w-64 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 shadow-lg
+    -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto"
+    :class="{ 'translate-x-0': sidebarOpen }"
+    x-cloak>
+
+    <div class="p-4">
+        <div class="flex items-center gap-3 px-3 py-2 mb-2">
+            <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-500 to-umg-700 flex items-center justify-center shadow-sm">
+                <span class="text-white font-display font-bold text-xs">{{ user.get_full_name|default:user.username|first|upper }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-800 dark:text-white truncate">{{ user.get_full_name|default:user.username }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user.get_role_display|default:'User' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="px-3 pb-4 space-y-1">
+        {% if user.role == 'admin' or user.role == 'superadmin' %}
+        <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <i class="fas fa-crown mr-1"></i> Admin
+        </div>
+        <a href="/dashboard/admin/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/dashboard/admin/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-chart-pie w-5 text-center{% if '/dashboard/admin/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="/admin/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/admin/' in request.path and '/admin/' != request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-users w-5 text-center{% if '/admin/' in request.path and '/admin/' != request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Admin Panel</span>
+        </a>
+        <a href="/academics/faculties/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/academics/faculties' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-university w-5 text-center{% if '/academics/faculties' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Fakultas</span>
+        </a>
+        <a href="/academics/study-programs/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/academics/study-programs' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-graduation-cap w-5 text-center{% if '/academics/study-programs' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Program Studi</span>
+        </a>
+        <a href="/academics/courses/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/academics/courses' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-book w-5 text-center{% if '/academics/courses' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Mata Kuliah</span>
+        </a>
+        <a href="/academics/classes/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/academics/classes' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-door-open w-5 text-center{% if '/academics/classes' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Kelas</span>
+        </a>
+        <a href="/academics/semesters/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/academics/semesters' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-calendar-alt w-5 text-center{% if '/academics/semesters' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Semester</span>
+        </a>
+        <a href="/media/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/media/' in request.path and request.path != '/media/' %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-folder-open w-5 text-center{% if '/media/' in request.path and request.path != '/media/' %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Media</span>
+        </a>
+        <a href="/settings/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/settings/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-cog w-5 text-center{% if '/settings/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Pengaturan</span>
+        </a>
+        <a href="/analytics/admin/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/analytics/admin' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-chart-bar w-5 text-center{% if '/analytics/admin' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Analytics</span>
+        </a>
+
+        {% elif user.role == 'dosen' %}
+        <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <i class="fas fa-chalkboard-teacher mr-1"></i> Dosen
+        </div>
+        <a href="/dashboard/dosen/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/dashboard/dosen/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-chart-line w-5 text-center{% if '/dashboard/dosen/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="/courses/my-courses/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/courses/my-courses' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-book-open w-5 text-center{% if '/courses/my-courses' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Mata Kuliah Diampu</span>
+        </a>
+        <a href="/attendance/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/attendance/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-clipboard-check w-5 text-center{% if '/attendance/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Presensi</span>
+        </a>
+        <a href="/assignments/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/assignments/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-tasks w-5 text-center{% if '/assignments/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Tugas</span>
+        </a>
+        <a href="/quizzes/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/quizzes/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-puzzle-piece w-5 text-center{% if '/quizzes/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Kuis</span>
+        </a>
+        <a href="/forum/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/forum/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-comments w-5 text-center{% if '/forum/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Forum</span>
+        </a>
+        <a href="/announcements/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/announcements/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-bullhorn w-5 text-center{% if '/announcements/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Pengumuman</span>
+        </a>
+
+        {% elif user.role == 'mahasiswa' %}
+        <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <i class="fas fa-user-graduate mr-1"></i> Mahasiswa
+        </div>
+        <a href="/dashboard/mahasiswa/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/dashboard/mahasiswa/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-home w-5 text-center{% if '/dashboard/mahasiswa/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="/courses/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/courses/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-book w-5 text-center{% if '/courses/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Mata Kuliah Saya</span>
+        </a>
+        <a href="/assignments/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/assignments/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-file-alt w-5 text-center{% if '/assignments/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Tugas</span>
+        </a>
+        <a href="/quizzes/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/quizzes/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-question-circle w-5 text-center{% if '/quizzes/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Kuis</span>
+        </a>
+        <a href="/attendance/my-attendance/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/attendance/my-attendance' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-calendar-check w-5 text-center{% if '/attendance/my-attendance' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Presensi</span>
+        </a>
+        <a href="/analytics/mahasiswa/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/analytics/mahasiswa' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-star w-5 text-center{% if '/analytics/mahasiswa' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Nilai</span>
+        </a>
+        <a href="/forum/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/forum/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-comments w-5 text-center{% if '/forum/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Forum Diskusi</span>
+        </a>
+        <a href="/library/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors{% if '/library/' in request.path %} bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium{% else %} text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50{% endif %}">
+            <i class="fas fa-library w-5 text-center{% if '/library/' in request.path %} text-primary-500{% else %} text-gray-400{% endif %}"></i>
+            <span>Perpustakaan</span>
+        </a>
+        {% endif %}
+
+        <hr class="my-3 border-gray-200 dark:border-gray-700">
+
+        <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <i class="fas fa-link mr-1"></i> Umum
+        </div>
+        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+            <i class="fas fa-globe w-5 text-center text-gray-400"></i>
+            <span>Beranda</span>
+        </a>
+        <a href="/accounts/profile/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+            <i class="fas fa-user w-5 text-center text-gray-400"></i>
+            <span>Profil Saya</span>
+        </a>
+        <a href="/messages/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+            <i class="fas fa-envelope w-5 text-center text-gray-400"></i>
+            <span>Pesan</span>
+        </a>
+        <a href="/accounts/logout/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+            <i class="fas fa-sign-out-alt w-5 text-center"></i>
+            <span>Keluar</span>
+        </a>
+    </nav>
+</aside>

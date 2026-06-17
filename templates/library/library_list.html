@@ -1,0 +1,138 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Perpustakaan Digital - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-1/2 left-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Perpustakaan Digital</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="{% url 'library:upload' %}" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-400/30 text-sm transition-all">
+          <i class="fas fa-upload mr-1"></i>Upload
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-6 pb-12 flex-1">
+    <form method="get" class="mb-6">
+      <div class="flex gap-3">
+        <div class="flex-1 relative">
+          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-blue-300/50"></i>
+          <input type="text" name="q" value="{{ current_q }}" placeholder="Cari judul, penulis, atau kata kunci..." class="w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm backdrop-blur-md">
+        </div>
+        <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+          <i class="fas fa-search mr-2"></i>Cari
+        </button>
+      </div>
+    </form>
+
+    <div class="flex gap-6">
+      <aside class="w-64 flex-shrink-0 space-y-4">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-4">
+          <h3 class="text-sm font-bold text-white mb-3"><i class="fas fa-filter mr-2"></i>Tipe</h3>
+          <div class="space-y-1.5">
+            <a href="?{% if current_q %}q={{ current_q }}&{% endif %}" class="block px-3 py-1.5 rounded-lg text-sm {% if not current_type %}bg-blue-500/20 text-blue-200{% else %}text-blue-200/60 hover:bg-white/10{% endif %} transition-all">Semua</a>
+            {% for type_code, type_label in type_summary %}
+            <a href="?type={{ type_code }}{% if current_q %}&q={{ current_q }}{% endif %}" class="block px-3 py-1.5 rounded-lg text-sm {% if current_type == type_code %}bg-blue-500/20 text-blue-200{% else %}text-blue-200/60 hover:bg-white/10{% endif %} transition-all flex justify-between">
+              <span>{{ type_label }}</span>
+              <span class="text-xs text-blue-300/50">({{ type_code.count }})</span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-4">
+          <h3 class="text-sm font-bold text-white mb-3"><i class="fas fa-folder mr-2"></i>Kategori</h3>
+          <div class="space-y-1.5">
+            <a href="?{% if current_q %}q={{ current_q }}&{% endif %}" class="block px-3 py-1.5 rounded-lg text-sm {% if not current_category %}bg-blue-500/20 text-blue-200{% else %}text-blue-200/60 hover:bg-white/10{% endif %} transition-all">Semua</a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.id }}{% if current_q %}&q={{ current_q }}{% endif %}" class="block px-3 py-1.5 rounded-lg text-sm {% if current_category == cat.id|stringformat:'s' %}bg-blue-500/20 text-blue-200{% else %}text-blue-200/60 hover:bg-white/10{% endif %} transition-all flex justify-between">
+              <span><i class="fas fa-{{ cat.icon }} mr-2 text-xs"></i>{{ cat.name }}</span>
+              <span class="text-xs text-blue-300/50">({{ cat.item_count }})</span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-4">
+          <h3 class="text-sm font-bold text-white mb-3"><i class="fas fa-calendar mr-2"></i>Tahun</h3>
+          <div class="space-y-1.5">
+            {% for year in years %}
+            <a href="?year={{ year }}{% if current_q %}&q={{ current_q }}{% endif %}" class="block px-3 py-1.5 rounded-lg text-sm {% if current_year == year|stringformat:'s' %}bg-blue-500/20 text-blue-200{% else %}text-blue-200/60 hover:bg-white/10{% endif %} transition-all">{{ year }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </aside>
+
+      <div class="flex-1">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="itemGrid">
+          {% for item in items %}
+          <a href="{% url 'library:detail' item.pk %}" class="group backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden hover:bg-white/20 dark:hover:bg-gray-900/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
+            <div class="h-40 bg-gradient-to-br from-blue-600/30 to-purple-700/30 flex items-center justify-center relative overflow-hidden">
+              {% if item.cover_image %}
+              <img src="{{ item.cover_image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+              {% else %}
+              <i class="fas fa-file-alt text-5xl text-blue-300/40 group-hover:text-blue-300/60 transition-colors"></i>
+              {% endif %}
+              <span class="absolute top-3 right-3 px-2 py-1 rounded-lg text-xs font-medium bg-blue-600/40 text-blue-200 border border-blue-400/30 backdrop-blur-sm">{{ item.get_item_type_display }}</span>
+            </div>
+            <div class="p-4">
+              <h3 class="text-base font-bold text-white group-hover:text-blue-300 transition-colors mb-1 line-clamp-2">{{ item.title }}</h3>
+              <p class="text-blue-200/60 text-sm mb-1"><i class="fas fa-user mr-1 text-xs"></i>{{ item.author }}</p>
+              {% if item.publication_year %}
+              <p class="text-blue-200/40 text-xs mb-3">{{ item.publication_year }}</p>
+              {% endif %}
+              <div class="flex items-center justify-between text-xs text-blue-300/50 pt-3 border-t border-white/10">
+                <span><i class="fas fa-download mr-1"></i>{{ item.download_count }}</span>
+                <span><i class="fas fa-eye mr-1"></i>{{ item.view_count }}</span>
+                {% if item.pages %}
+                <span><i class="fas fa-file mr-1"></i>{{ item.pages }} hal</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+          {% empty %}
+          <div class="col-span-full">
+            <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+                <i class="fas fa-book-open text-3xl text-blue-300/50"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2">Tidak Ada Item</h3>
+              <p class="text-blue-200/60">Belum ada item perpustakaan yang tersedia.</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="mt-8 flex justify-center">
+          <div class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="px-4 py-2 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-all text-sm"><i class="fas fa-chevron-left"></i></a>
+            {% endif %}
+            <span class="px-4 py-2 text-white/60 text-sm">Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="px-4 py-2 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-all text-sm"><i class="fas fa-chevron-right"></i></a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

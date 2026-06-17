@@ -1,0 +1,114 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}
+{% with other=conversation.participants.exclude(id=user.id).first %}
+{{ other.get_full_name|default:other.username }} - Pesan
+{% endwith %}
+{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ showEmoji: false }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4 min-w-0">
+        <a href="{% url 'messaging:inbox' %}" class="text-white/70 hover:text-white transition-colors flex-shrink-0"><i class="fas fa-arrow-left"></i></a>
+        {% with other=conversation.participants.exclude(id=user.id).first %}
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg">
+          {{ other.get_full_name|default:other.username|first|upper }}
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-lg font-bold text-white truncate">{{ other.get_full_name|default:other.username }}</h1>
+          <p class="text-xs text-blue-200/50 truncate">
+            {% if other.is_dosen %}Dosen{% elif other.is_admin %}Admin{% else %}Mahasiswa{% endif %}
+            {% if other.study_program %} - {{ other.study_program }}{% endif %}
+          </p>
+        </div>
+        {% endwith %}
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="hidden sm:inline-block h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
+        <span class="hidden sm:inline text-xs text-green-300/70">Online</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Messages Container -->
+  <div class="relative flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 overflow-hidden flex flex-col">
+    <div id="message-container"
+         class="flex-1 overflow-y-auto py-6 space-y-3 scrollbar-thin"
+         hx-get="{% url 'messaging:conversation_detail' conversation.id %}"
+         hx-trigger="every:3s"
+         hx-select="#message-list"
+         hx-target="#message-list"
+         hx-swap="outerHTML"
+         hx-headers='{"X-Conversation-Id": "{{ conversation.id }}"}'
+         _="on htmx:afterSwap scrollTop = scrollHeight">
+      <div id="message-list">
+        {% include 'messaging/partials/message_list.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Send Message Form -->
+  <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-t border-white/10 px-4 sm:px-6 py-4">
+    <div class="max-w-4xl mx-auto">
+      <form method="post" action="{% url 'messaging:send_message' conversation.id %}"
+            enctype="multipart/form-data"
+            hx-post="{% url 'messaging:send_message' conversation.id %}"
+            hx-target="#message-list"
+            hx-swap="outerHTML"
+            hx-on::after-request="document.getElementById('msgForm').reset(); document.getElementById('file-name').classList.add('hidden')"
+            id="msgForm"
+            class="flex items-end space-x-3">
+        {% csrf_token %}
+        <div class="flex-1 relative">
+          <textarea name="body" rows="1" x-data
+            @input="$el.style.height = ''; $el.style.height = $el.scrollHeight + 'px'"
+            @keydown.enter.prevent="$el.form.querySelector('button[type=submit]').click()"
+            class="w-full px-4 py-3 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm resize-none max-h-32"
+            placeholder="Ketik pesan... (Enter untuk kirim)"></textarea>
+        </div>
+
+        <!-- Attachment -->
+        <label class="flex-shrink-0 p-3 rounded-xl bg-white/10 hover:bg-white/20 text-blue-300/70 hover:text-blue-200 cursor-pointer transition-all border border-white/10">
+          <i class="fas fa-paperclip"></i>
+          <input type="file" name="attachment" accept="image/*,.pdf,.doc,.docx" class="hidden"
+            onchange="document.getElementById('file-name').textContent = this.files[0]?.name || ''; document.getElementById('file-name').classList.remove('hidden')">
+        </label>
+
+        <button type="submit"
+          class="flex-shrink-0 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 transition-all">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </form>
+      <div id="file-name" class="hidden mt-2 text-xs text-blue-200/60 flex items-center space-x-1">
+        <i class="fas fa-file"></i><span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'messaging/partials/unread_badge.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('htmx:afterSwap', function(evt) {
+    const container = document.getElementById('message-container');
+    if (container) container.scrollTop = container.scrollHeight;
+  });
+</script>
+<style>
+  #message-container::-webkit-scrollbar { width: 4px; }
+  #message-container::-webkit-scrollbar-track { background: transparent; }
+  #message-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+</style>
+{% endblock %}

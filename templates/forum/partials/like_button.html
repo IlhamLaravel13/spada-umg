@@ -1,0 +1,20 @@
+{% load static %}
+<form method="post" action="{% url 'forum:reply_toggle_like' reply.id %}"
+      hx-post="{% url 'forum:reply_toggle_like' reply.id %}"
+      hx-target="closest form"
+      hx-swap="outerHTML"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      class="inline"
+      id="like-form-{{ reply.id }}">
+  {% csrf_token %}
+  <button type="submit"
+    class="text-xs transition-all {% if user.is_authenticated and user in reply.likes.all %}text-pink-300 hover:text-pink-200{% else %}text-blue-300/60 hover:text-blue-200{% endif %}"
+    title="Suka">
+    <i class="{% if user.is_authenticated and user in reply.likes.all %}fas fa-heart{% else %}far fa-heart{% endif %} mr-1"></i>
+    {% if reply.likes.count > 0 %}
+    <span>{{ reply.likes.count }}</span>
+    {% else %}
+    <span>Suka</span>
+    {% endif %}
+  </button>
+</form>

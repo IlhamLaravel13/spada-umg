@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for a in assignments %}
+<option value="{{ a.id }}">{{ a.title }} (Due: {{ a.due_date|date:'d M Y' }})</option>
+{% endfor %}

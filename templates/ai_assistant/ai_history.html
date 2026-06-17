@@ -1,0 +1,68 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Riwayat AI Assistant - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'ai_assistant:chat' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Riwayat Percakapan</h1>
+      </div>
+      <span class="px-3 py-1.5 rounded-xl text-sm bg-blue-500/20 text-blue-200 border border-blue-400/30">
+        {{ total_conversations }} percakapan
+      </span>
+    </div>
+  </nav>
+
+  <div class="relative max-w-4xl mx-auto w-full px-6 mt-6 pb-12 flex-1">
+    <div class="space-y-3">
+      {% for conv in conversations %}
+      <a href="{% url 'ai_assistant:chat' %}?conversation={{ conv.id }}" class="group block backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-5 hover:bg-white/20 dark:hover:bg-gray-900/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start space-x-4">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 flex-shrink-0">
+              <i class="fas fa-comment"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white group-hover:text-blue-300 transition-colors">{{ conv.title }}</h3>
+              <p class="text-blue-200/50 text-xs mt-1">
+                <span><i class="far fa-clock mr-1"></i>{{ conv.updated_at|date:"d M Y H:i" }}</span>
+                <span class="mx-2">|</span>
+                <span><i class="fas fa-comment-dots mr-1"></i>{{ conv.msg_count }} pesan</span>
+              </p>
+            </div>
+          </div>
+          <form method="post" action="{% url 'ai_assistant:delete_conversation' conv.id %}" onsubmit="return confirm('Hapus percakapan ini?')" class="opacity-0 group-hover:opacity-100 transition-opacity">
+            {% csrf_token %}
+            <button type="submit" class="p-2 rounded-xl hover:bg-red-600/20 text-red-400/50 hover:text-red-400 transition-all">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </form>
+        </div>
+      </a>
+      {% empty %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center">
+          <i class="fas fa-robot text-3xl text-blue-300/50"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Belum Ada Percakapan</h3>
+        <p class="text-blue-200/60 mb-6">Anda belum memiliki riwayat percakapan dengan AI Assistant.</p>
+        <a href="{% url 'ai_assistant:chat' %}" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+          <i class="fas fa-plus"></i><span>Mulai Percakapan Baru</span>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

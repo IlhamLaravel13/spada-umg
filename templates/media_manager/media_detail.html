@@ -1,0 +1,165 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ media_file.title }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ deleteId: null }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4 min-w-0">
+        <a href="{% url 'media_manager:media_list' %}" class="text-white/70 hover:text-white transition-colors flex-shrink-0"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white truncate">{{ media_file.title }}</h1>
+      </div>
+      <div class="flex items-center space-x-2 flex-shrink-0">
+        {% if user == media_file.uploaded_by or user.is_admin %}
+        <a href="{% url 'media_manager:media_update' media_file.id %}" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-yellow-300/70 hover:text-yellow-200 transition-all" title="Edit">
+          <i class="fas fa-pen"></i>
+        </a>
+        <button @click="deleteId = {{ media_file.id }}" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-red-300/70 hover:text-red-200 transition-all" title="Hapus">
+          <i class="fas fa-trash"></i>
+        </button>
+        {% endif %}
+        <a href="{% url 'media_manager:media_download' media_file.id %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center space-x-2">
+          <i class="fas fa-download"></i><span>Unduh</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-5xl mx-auto w-full px-6 pb-12 mt-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Preview -->
+      <div class="lg:col-span-2">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden">
+          {% if media_file.file_type == 'image' and media_file.file %}
+          <img src="{{ media_file.file.url }}" alt="{{ media_file.alt_text|default:media_file.title }}" class="w-full h-auto object-contain max-h-[60vh] mx-auto">
+          {% elif media_file.file_type == 'video' and media_file.file %}
+          <video controls class="w-full max-h-[60vh]" poster="{% if media_file.thumbnail %}{{ media_file.thumbnail.url }}{% endif %}">
+            <source src="{{ media_file.file.url }}" type="{{ media_file.mime_type }}">
+            Browser Anda tidak mendukung pemutar video.
+          </video>
+          {% elif media_file.file_type == 'audio' and media_file.file %}
+          <div class="p-12 text-center">
+            <i class="fas fa-music text-6xl text-blue-300/50 mb-4"></i>
+            <audio controls class="w-full mx-auto max-w-md">
+              <source src="{{ media_file.file.url }}" type="{{ media_file.mime_type }}">
+            </audio>
+          </div>
+          {% elif media_file.file_type == 'document' %}
+          <div class="p-16 text-center">
+            <i class="far fa-file-alt text-7xl text-green-300/50 mb-4"></i>
+            <p class="text-blue-200/70 text-sm">Pratinjau tidak tersedia untuk dokumen.</p>
+          </div>
+          {% else %}
+          <div class="p-16 text-center">
+            <i class="far fa-file text-7xl text-blue-300/50 mb-4"></i>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="space-y-4">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <h3 class="text-lg font-bold text-white mb-4">Informasi File</h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">Tipe</span>
+              <span class="text-white font-medium">{{ media_file.get_file_type_display }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">MIME</span>
+              <span class="text-white font-mono text-xs">{{ media_file.mime_type }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">Ukuran</span>
+              <span class="text-white font-medium">
+                {% if media_file.file_size < 1024 %}
+                  {{ media_file.file_size }} B
+                {% elif media_file.file_size < 1048576 %}
+                  {{ media_file.file_size|floatformat:0|divisibleby:1024|floatformat:1 }} KB
+                {% else %}
+                  {{ media_file.file_size|floatformat:0|divisibleby:1048576|floatformat:1 }} MB
+                {% endif %}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">Diunggah oleh</span>
+              <span class="text-white">{{ media_file.uploaded_by.get_full_name|default:media_file.uploaded_by.username|default:'Sistem' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">Diunggah pada</span>
+              <span class="text-white">{{ media_file.created_at|date:'d M Y H:i' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">Terakhir diperbarui</span>
+              <span class="text-white">{{ media_file.updated_at|date:'d M Y H:i' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">Unduhan</span>
+              <span class="text-white font-medium">{{ media_file.download_count }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200/50">Visibilitas</span>
+              {% if media_file.is_public %}
+              <span class="text-green-300 font-medium">Publik</span>
+              {% else %}
+              <span class="text-yellow-300 font-medium">Private</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {% if media_file.description %}
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <h3 class="text-sm font-semibold text-blue-200 mb-2">Deskripsi</h3>
+          <p class="text-white text-sm leading-relaxed">{{ media_file.description }}</p>
+        </div>
+        {% endif %}
+
+        {% if media_file.tags %}
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <h3 class="text-sm font-semibold text-blue-200 mb-2">Tags</h3>
+          <div class="flex flex-wrap gap-2">
+            {% for tag in media_file.tags.split %}
+            <span class="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-200 text-xs border border-blue-400/30">{{ tag }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div x-show="deleteId" class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="deleteId = null"></div>
+    <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/50 rounded-2xl border border-white/20 p-6 max-w-md w-full mx-4 shadow-2xl">
+      <div class="text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+          <i class="fas fa-exclamation-triangle text-red-300 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Hapus File?</h3>
+        <p class="text-blue-200/70 text-sm mb-6">File akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.</p>
+        <div class="flex space-x-3 justify-center">
+          <button @click="deleteId = null" class="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all text-sm">Batal</button>
+          <form method="post" :action="'/media/' + deleteId + '/delete/'">
+            {% csrf_token %}
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium transition-all text-sm shadow-lg shadow-red-500/25">
+              <i class="fas fa-trash mr-2"></i>Hapus
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

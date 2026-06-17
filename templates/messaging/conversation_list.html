@@ -1,0 +1,68 @@
+{% load core_tags %}
+{% for conv in conversations %}
+<a href="{% url 'messaging:conversation_detail' conv.id %}"
+   class="flex items-center px-4 py-3 hover:bg-white/5 transition-all duration-200 group {% if current_id|add:0 == conv.id %}bg-white/10 border-l-2 border-blue-400{% endif %}"
+   :class="searchQuery && !'{{ conv.subject|default:'' }}'.toLowerCase().includes(searchQuery.toLowerCase()) && !'{% for p in conv.participants.all %}{{ p.get_full_name|default:p.username }} {% endfor %}'.toLowerCase().includes(searchQuery.toLowerCase()) ? 'hidden' : ''">
+  {% with other=conv.participants.exclude(id=user.id).first %}
+  {% with uc=unread_counts|lookup:conv.id %}
+  <!-- Avatar -->
+  <div class="relative flex-shrink-0">
+    <div class="w-11 h-11 rounded-full bg-gradient-to-br 
+      {% if conv.is_group %}from-purple-500 to-pink-500{% else %}from-blue-500 to-purple-500{% endif %} 
+      flex items-center justify-center text-white font-bold text-sm shadow-lg">
+      {% if conv.is_group %}
+        <i class="fas fa-users text-lg"></i>
+      {% else %}
+        {{ other.get_full_name|default:other.username|first|upper }}
+      {% endif %}
+    </div>
+    {% if uc > 0 %}
+    <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 border-2 border-white/20 flex items-center justify-center text-white text-xs font-bold">
+      {{ uc }}
+    </span>
+    {% endif %}
+  </div>
+
+  <!-- Info -->
+  <div class="ml-3 flex-1 min-w-0">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-white truncate">
+        {% if conv.is_group %}
+          {{ conv.subject|default:'Grup' }}
+        {% else %}
+          {{ other.get_full_name|default:other.username }}
+        {% endif %}
+      </h3>
+      {% with last_msg=conv.messages.last %}
+      {% if last_msg %}
+      <span class="text-xs text-blue-200/50 flex-shrink-0 ml-2">{{ last_msg.created_at|date:'H:i' }}</span>
+      {% endif %}
+      {% endwith %}
+    </div>
+    <div class="flex items-center mt-0.5">
+      {% with last_msg=conv.messages.last %}
+      {% if last_msg %}
+      <p class="text-xs text-blue-200/50 truncate">
+        {% if last_msg.sender == user %}
+        <span class="text-blue-300">Anda: </span>
+        {% endif %}
+        {{ last_msg.body|truncatechars:40 }}
+      </p>
+      {% else %}
+      <p class="text-xs text-blue-200/30 italic">Belum ada pesan</p>
+      {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+  {% endwith %}
+  {% endwith %}
+</a>
+{% empty %}
+<div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+  <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-3">
+    <i class="fas fa-inbox text-2xl text-blue-300/40"></i>
+  </div>
+  <p class="text-sm text-blue-200/60">Belum ada percakapan</p>
+  <p class="text-xs text-blue-200/40 mt-1">Mulai pesan baru untuk berkomunikasi.</p>
+</div>
+{% endfor %}

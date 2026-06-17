@@ -1,0 +1,907 @@
+/* ============================================================
+   SPADA UMG - Custom Styles
+   ============================================================ */
+
+/* ============================================================
+   1. GLASSMORPHISM UTILITIES
+   ============================================================ */
+.glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass {
+    background: rgba(17, 24, 39, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass-light {
+    background: rgba(31, 41, 55, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.dark .glass-card {
+    background: rgba(31, 41, 55, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-nav {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.dark .glass-nav {
+    background: rgba(31, 41, 55, 0.8);
+    border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+.glass-sidebar {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.dark .glass-sidebar {
+    background: rgba(31, 41, 55, 0.85);
+    border-right: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* ============================================================
+   2. CUSTOM SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.4);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.7);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+}
+
+.dark * {
+    scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+}
+
+/* Sidebar custom scrollbar */
+.sidebar-scroll::-webkit-scrollbar {
+    width: 3px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+}
+
+/* ============================================================
+   3. ANIMATION KEYFRAMES
+   ============================================================ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes slideInDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes ping {
+    0% { transform: scale(1); opacity: 1; }
+    75% { transform: scale(1.5); opacity: 0.5; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-fade-in-up { animation: fadeInUp 0.4s ease-out; }
+.animate-fade-in-down { animation: fadeInDown 0.3s ease-out; }
+.animate-fade-in-left { animation: fadeInLeft 0.4s ease-out; }
+.animate-fade-in-right { animation: fadeInRight 0.4s ease-out; }
+.animate-slide-in-left { animation: slideInLeft 0.3s ease-out; }
+.animate-slide-in-right { animation: slideInRight 0.3s ease-out; }
+.animate-slide-in-up { animation: slideInUp 0.3s ease-out; }
+.animate-slide-in-down { animation: slideInDown 0.3s ease-out; }
+.animate-scale-in { animation: scaleIn 0.3s ease-out; }
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.animate-bounce { animation: bounce 1s infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-gradient { animation: gradientShift 3s ease infinite; background-size: 200% 200%; }
+
+/* Staggered children */
+.stagger-children > * {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.45s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.5s; }
+
+/* Skeleton loading */
+.skeleton {
+    background: linear-gradient(90deg, 
+        rgba(156, 163, 175, 0.1) 25%, 
+        rgba(156, 163, 175, 0.2) 50%, 
+        rgba(156, 163, 175, 0.1) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 0.375rem;
+}
+
+.dark .skeleton {
+    background: linear-gradient(90deg, 
+        rgba(75, 85, 99, 0.1) 25%, 
+        rgba(75, 85, 99, 0.3) 50%, 
+        rgba(75, 85, 99, 0.1) 75%);
+    background-size: 200% 100%;
+}
+
+/* ============================================================
+   4. LOADING STATES
+   ============================================================ */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}
+
+.htmx-request .loading-hide {
+    display: none;
+}
+
+.htmx-request.loading-hide {
+    display: none;
+}
+
+/* Loading spinner overlay */
+.loading-overlay {
+    position: relative;
+}
+
+.loading-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.dark .loading-overlay::after {
+    background: rgba(31, 41, 55, 0.6);
+}
+
+.loading-overlay::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    z-index: 11;
+}
+
+/* Button loading state */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* ============================================================
+   5. FORM STYLES
+   ============================================================ */
+.form-input {
+    @apply w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 
+           bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+           placeholder-gray-400 dark:placeholder-gray-500
+           focus:border-primary-500 dark:focus:border-primary-400 
+           focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-primary-400/20
+           transition-all duration-200 text-sm;
+}
+
+.form-input-error {
+    @apply border-red-500 dark:border-red-400 focus:border-red-500 focus:ring-red-500/20;
+}
+
+.form-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5;
+}
+
+.form-error {
+    @apply text-xs text-red-500 dark:text-red-400 mt-1;
+}
+
+.form-select {
+    @apply form-input appearance-none cursor-pointer;
+}
+
+.form-textarea {
+    @apply form-input min-h-[100px] resize-y;
+}
+
+/* File input */
+.file-input-wrapper {
+    @apply relative;
+}
+
+.file-input-wrapper input[type="file"] {
+    @apply absolute inset-0 opacity-0 cursor-pointer;
+}
+
+.file-input-label {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed 
+           border-gray-300 dark:border-gray-600 
+           bg-gray-50 dark:bg-gray-800/50
+           text-gray-500 dark:text-gray-400 text-sm
+           hover:border-primary-400 dark:hover:border-primary-500 
+           hover:bg-primary-50 dark:hover:bg-primary-900/10
+           transition-all duration-200 cursor-pointer;
+}
+
+/* ============================================================
+   6. CARD STYLES
+   ============================================================ */
+.card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
+}
+
+.card-hover {
+    @apply card hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600 
+           hover:-translate-y-0.5 transition-all duration-200;
+}
+
+.card-gradient {
+    background: linear-gradient(135deg, 
+        rgba(59, 130, 246, 0.05) 0%, 
+        rgba(0, 112, 209, 0.05) 100%);
+}
+
+.dark .card-gradient {
+    background: linear-gradient(135deg, 
+        rgba(59, 130, 246, 0.1) 0%, 
+        rgba(0, 112, 209, 0.1) 100%);
+}
+
+/* ============================================================
+   7. BADGE & STATUS
+   ============================================================ */
+.badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-success { @apply bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400; }
+.badge-warning { @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400; }
+.badge-danger { @apply bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400; }
+.badge-info { @apply bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400; }
+.badge-primary { @apply bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400; }
+.badge-secondary { @apply bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300; }
+
+/* ============================================================
+   8. TABLE STYLES
+   ============================================================ */
+.table-container {
+    @apply overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700;
+}
+
+.table-custom {
+    @apply w-full text-sm;
+}
+
+.table-custom thead {
+    @apply bg-gray-50 dark:bg-gray-800/50;
+}
+
+.table-custom thead th {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider 
+           text-gray-500 dark:text-gray-400;
+}
+
+.table-custom tbody tr {
+    @apply border-t border-gray-100 dark:border-gray-700/50 
+           hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors;
+}
+
+.table-custom tbody td {
+    @apply px-4 py-3 text-gray-700 dark:text-gray-300;
+}
+
+/* ============================================================
+   9. PROGRESS BAR
+   ============================================================ */
+.progress-bar {
+    @apply h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden;
+}
+
+.progress-bar-fill {
+    @apply h-full rounded-full bg-gradient-to-r from-primary-500 to-umg-600 transition-all duration-500;
+}
+
+.progress-bar-fill-success { @apply bg-gradient-to-r from-green-400 to-emerald-500; }
+.progress-bar-fill-warning { @apply bg-gradient-to-r from-yellow-400 to-orange-500; }
+.progress-bar-fill-danger { @apply bg-gradient-to-r from-red-400 to-rose-500; }
+
+/* ============================================================
+   10. AVATAR
+   ============================================================ */
+.avatar {
+    @apply relative inline-flex items-center justify-center rounded-full overflow-hidden;
+}
+
+.avatar-sm { @apply h-8 w-8 text-xs; }
+.avatar-md { @apply h-10 w-10 text-sm; }
+.avatar-lg { @apply h-12 w-12 text-base; }
+.avatar-xl { @apply h-16 w-16 text-lg; }
+
+.avatar-initials {
+    @apply flex items-center justify-center w-full h-full 
+           bg-gradient-to-br from-primary-400 to-umg-600 
+           text-white font-bold;
+}
+
+/* ============================================================
+   11. TOOLTIP
+   ============================================================ */
+.tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs font-medium text-white dark:text-gray-800 
+           bg-gray-800 dark:bg-gray-200 rounded shadow-lg whitespace-nowrap;
+}
+
+/* ============================================================
+   12. DROPDOWN
+   ============================================================ */
+.dropdown-item {
+    @apply flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 
+           hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg cursor-pointer;
+}
+
+.dropdown-divider {
+    @apply my-1 border-t border-gray-100 dark:border-gray-700;
+}
+
+/* ============================================================
+   13. PRINT STYLES
+   ============================================================ */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 12pt;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    nav, footer, .sidebar, .navbar, #scroll-to-top,
+    .fixed, .backdrop-blur-xl, .backdrop-blur {
+        display: none !important;
+    }
+
+    main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        background: white !important;
+    }
+
+    .table-custom thead {
+        background: #f3f4f6 !important;
+    }
+
+    a {
+        color: #2563eb !important;
+        text-decoration: underline !important;
+    }
+
+    .page-break {
+        page-break-before: always;
+    }
+
+    @page {
+        margin: 2cm;
+    }
+}
+
+.print-only {
+    display: none;
+}
+
+/* ============================================================
+   14. TYPOGRAPHY
+   ============================================================ */
+.content h1 { @apply text-2xl font-bold mb-4; }
+.content h2 { @apply text-xl font-semibold mb-3; }
+.content h3 { @apply text-lg font-semibold mb-2; }
+.content p { @apply mb-4 leading-relaxed; }
+.content ul { @apply list-disc list-inside mb-4 space-y-1; }
+.content ol { @apply list-decimal list-inside mb-4 space-y-1; }
+.content a { @apply text-primary-600 dark:text-primary-400 hover:underline; }
+.content blockquote { @apply pl-4 border-l-4 border-primary-500 italic text-gray-600 dark:text-gray-400 mb-4; }
+.content code { @apply px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-sm font-mono; }
+.content pre { @apply p-4 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-x-auto mb-4; }
+.content pre code { @apply p-0 bg-transparent; }
+
+/* ============================================================
+   15. RICH TEXT EDITOR
+   ============================================================ */
+.rich-text-content {
+    @apply leading-relaxed;
+}
+
+.rich-text-content h1 { @apply text-2xl font-bold mb-4; }
+.rich-text-content h2 { @apply text-xl font-bold mb-3; }
+.rich-text-content h3 { @apply text-lg font-semibold mb-2; }
+.rich-text-content p { @apply mb-3; }
+.rich-text-content ul { @apply list-disc list-inside mb-3; }
+.rich-text-content ol { @apply list-decimal list-inside mb-3; }
+.rich-text-content a { @apply text-primary-600 dark:text-primary-400 underline; }
+.rich-text-content blockquote { @apply pl-4 border-l-4 border-gray-300 dark:border-gray-600 italic text-gray-600 dark:text-gray-400 mb-3; }
+.rich-text-content img { @apply max-w-full rounded-lg my-4; }
+.rich-text-content iframe { @apply w-full aspect-video rounded-lg my-4; }
+
+/* ============================================================
+   16. TIMELINE
+   ============================================================ */
+.timeline {
+    @apply relative;
+}
+
+.timeline::before {
+    content: '';
+    @apply absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700;
+}
+
+.timeline-item {
+    @apply relative pl-10 pb-6;
+}
+
+.timeline-item::before {
+    content: '';
+    @apply absolute left-2.5 top-1.5 w-3 h-3 rounded-full bg-primary-500 border-2 border-white dark:border-gray-800;
+}
+
+.timeline-item:last-child {
+    @apply pb-0;
+}
+
+/* ============================================================
+   17. FILE UPLOAD PREVIEW
+   ============================================================ */
+.file-preview {
+    @apply relative inline-flex items-center gap-2 px-3 py-2 rounded-lg 
+           bg-gray-100 dark:bg-gray-700 text-sm;
+}
+
+.file-preview img {
+    @apply h-10 w-10 rounded object-cover;
+}
+
+.file-preview-remove {
+    @apply absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white 
+           flex items-center justify-center text-xs cursor-pointer
+           hover:bg-red-600 transition-colors;
+}
+
+/* ============================================================
+   18. GRID STYLES
+   ============================================================ */
+.grid-cards {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+}
+
+/* ============================================================
+   19. PAGE TRANSITIONS
+   ============================================================ */
+.page-enter {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* ============================================================
+   20. DARK MODE TRANSITION
+   ============================================================ */
+html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================================
+   21. HTMX TRANSITIONS
+   ============================================================ */
+.htmx-swapping {
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+}
+
+/* ============================================================
+   22. RESPONSIVE UTILITIES
+   ============================================================ */
+@media (max-width: 639px) {
+    .container-custom {
+        @apply px-3;
+    }
+}
+
+@media (min-width: 640px) {
+    .container-custom {
+        @apply px-4;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container-custom {
+        @apply px-6;
+    }
+}
+
+.container-custom {
+    @apply mx-auto w-full max-w-7xl;
+}
+
+/* ============================================================
+   23. CUSTOM CHECKBOX & RADIO
+   ============================================================ */
+.custom-checkbox {
+    @apply h-4 w-4 rounded border-gray-300 dark:border-gray-600 
+           text-primary-600 focus:ring-primary-500 
+           bg-white dark:bg-gray-700;
+}
+
+.custom-radio {
+    @apply h-4 w-4 border-gray-300 dark:border-gray-600 
+           text-primary-600 focus:ring-primary-500 
+           bg-white dark:bg-gray-700;
+}
+
+/* ============================================================
+   24. CHAT / FORUM STYLES
+   ============================================================ */
+.chat-bubble {
+    @apply max-w-[80%] rounded-2xl px-4 py-2.5 text-sm;
+}
+
+.chat-bubble-sent {
+    @apply chat-bubble bg-primary-500 text-white ml-auto rounded-br-md;
+}
+
+.chat-bubble-received {
+    @apply chat-bubble bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white mr-auto rounded-bl-md;
+}
+
+/* ============================================================
+   25. TOGGLE SWITCH
+   ============================================================ */
+.toggle {
+    @apply relative inline-flex h-6 w-11 items-center rounded-full transition-colors 
+           bg-gray-300 dark:bg-gray-600 cursor-pointer;
+}
+
+.toggle[aria-checked="true"] {
+    @apply bg-primary-500;
+}
+
+.toggle-handle {
+    @apply inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform;
+}
+
+.toggle[aria-checked="true"] .toggle-handle {
+    @apply translate-x-5;
+}
+
+/* ============================================================
+   26. STEPPER
+   ============================================================ */
+.stepper {
+    @apply flex items-center;
+}
+
+.step {
+    @apply flex items-center;
+}
+
+.step-number {
+    @apply flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium 
+           bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400;
+}
+
+.step.active .step-number {
+    @apply bg-primary-500 text-white;
+}
+
+.step.completed .step-number {
+    @apply bg-green-500 text-white;
+}
+
+.step-connector {
+    @apply flex-1 h-0.5 mx-2 bg-gray-200 dark:bg-gray-700;
+}
+
+.step.completed .step-connector {
+    @apply bg-green-500;
+}
+
+/* ============================================================
+   27. NOTIFICATION DOT PING
+   ============================================================ */
+.notif-dot {
+    @apply absolute -top-0.5 -right-0.5 w-2.5 h-2.5;
+}
+
+.notif-dot::after {
+    content: '';
+    @apply absolute inset-0 rounded-full bg-red-400;
+    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ============================================================
+   28. EMPTY STATE
+   ============================================================ */
+.empty-state {
+    @apply flex flex-col items-center justify-center py-16 px-4 text-center;
+}
+
+.empty-state-icon {
+    @apply h-20 w-20 rounded-full bg-gray-100 dark:bg-gray-700 
+           flex items-center justify-center mb-4;
+}
+
+.empty-state-icon i {
+    @apply text-3xl text-gray-400;
+}
+
+/* ============================================================
+   29. DIVIDER WITH TEXT
+   ============================================================ */
+.divider {
+    @apply flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    @apply flex-1 h-px bg-gray-200 dark:bg-gray-700;
+}
+
+/* ============================================================
+   30. MISC
+   ============================================================ */
+[x-cloak] {
+    display: none !important;
+}
+
+.truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Focus ring utility */
+.focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+}
+
+/* Safe area for mobile */
+.safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}

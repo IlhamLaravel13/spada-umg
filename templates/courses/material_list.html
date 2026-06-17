@@ -1,0 +1,96 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Materi - {{ class_obj.course.name }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen" x-data="{ search: '' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% if is_dosen_view %}{% url 'courses:my_courses' %}{% else %}{% url 'courses:course_detail' class_obj.id %}{% endif %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <div>
+          <h1 class="text-xl font-bold text-white">{{ class_obj.course.name }}</h1>
+          <p class="text-blue-200/60 text-sm">{{ class_obj.course.code }} - {{ class_obj.name }}</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        {% if is_dosen_view %}
+        <span class="px-3 py-1.5 rounded-xl text-sm bg-blue-500/20 text-blue-200 border border-blue-400/30">
+          <i class="fas fa-file-alt mr-1"></i>{{ total_materials }} Materi
+        </span>
+        <a href="{% url 'courses:material_upload' class_obj.id %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 flex items-center space-x-2">
+          <i class="fas fa-upload"></i><span>Upload</span>
+        </a>
+        {% endif %}
+        <div class="relative">
+          <input type="text" x-model="search" placeholder="Cari materi..." class="w-48 pl-9 pr-3 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-sm"></i>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto px-6 mt-6 pb-12">
+    <div class="space-y-2" id="materialList">
+      {% for material in materials %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-xl border border-white/20 p-4 hover:bg-white/20 dark:hover:bg-gray-900/50 transition-all"
+           x-show="!search || '{{ material.title|escapejs }} {{ material.description|escapejs }}'.toLowerCase().includes(search.toLowerCase())">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4 flex-1">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br {% if material.file_type == 'pdf' %}from-red-500 to-red-600{% elif material.file_type == 'docx' %}from-blue-500 to-blue-600{% elif material.file_type == 'pptx' %}from-orange-500 to-red-600{% elif material.file_type == 'xlsx' %}from-green-500 to-emerald-600{% elif material.file_type == 'video' %}from-purple-500 to-pink-600{% elif material.file_type == 'audio' %}from-indigo-500 to-purple-600{% elif material.file_type == 'image' %}from-teal-500 to-cyan-600{% elif material.file_type == 'archive' %}from-yellow-500 to-orange-600{% elif material.file_type == 'link' %}from-green-500 to-teal-600{% else %}from-gray-500 to-gray-600{% endif %} flex items-center justify-center text-white shadow-lg">
+              <i class="fas {% if material.file_type == 'pdf' %}fa-file-pdf{% elif material.file_type == 'docx' %}fa-file-word{% elif material.file_type == 'pptx' %}fa-file-powerpoint{% elif material.file_type == 'xlsx' %}fa-file-excel{% elif material.file_type == 'video' %}fa-file-video{% elif material.file_type == 'audio' %}fa-file-audio{% elif material.file_type == 'image' %}fa-file-image{% elif material.file_type == 'archive' %}fa-file-archive{% elif material.file_type == 'link' %}fa-link{% else %}fa-file{% endif %}"></i>
+            </div>
+            <div>
+              <a href="{% url 'courses:material_detail' material.pk %}" class="text-white font-medium hover:text-blue-300 transition-colors">{{ material.title }}</a>
+              <p class="text-blue-200/50 text-xs mt-0.5">{{ material.description|truncatewords:15 }}</p>
+              <div class="flex items-center space-x-3 mt-1">
+                <span class="text-blue-200/40 text-xs">{{ material.get_file_type_display }}</span>
+                {% if material.file_size %}
+                <span class="text-blue-200/40 text-xs">{{ material.file_size|filesizeformat }}</span>
+                {% endif %}
+                <span class="text-blue-200/40 text-xs">{{ material.created_at|date:'d M Y' }}</span>
+                {% if not material.is_published and is_dosen_view %}
+                <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-500/20 text-yellow-300">Draft</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            {% if is_dosen_view %}
+            <a href="{% url 'courses:material_toggle_publish' material.pk %}" class="p-2 rounded-lg hover:bg-white/10 {% if material.is_published %}text-green-300{% else %}text-yellow-300{% endif %} transition-all" title="{% if material.is_published %}Sembunyikan{% else %}Publikasikan{% endif %}">
+              <i class="fas {% if material.is_published %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+            </a>
+            <a href="{% url 'courses:material_edit' material.pk %}" class="p-2 rounded-lg hover:bg-white/10 text-blue-300 transition-all" title="Edit"><i class="fas fa-pen"></i></a>
+            <form method="post" action="{% url 'courses:material_delete' material.pk %}" class="inline" onsubmit="return confirm('Hapus materi ini?')">
+              {% csrf_token %}
+              <button type="submit" class="p-2 rounded-lg hover:bg-white/10 text-red-300 transition-all" title="Hapus"><i class="fas fa-trash"></i></button>
+            </form>
+            {% else %}
+            <a href="{% url 'courses:material_detail' material.pk %}" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 text-xs transition-all"><i class="fas fa-eye mr-1"></i>Lihat</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center"><i class="fas fa-file-alt text-2xl text-blue-300/50"></i></div>
+        <p class="text-blue-200/60">Belum ada materi.</p>
+        {% if is_dosen_view %}
+        <a href="{% url 'courses:material_upload' class_obj.id %}" class="inline-flex items-center space-x-2 mt-4 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/25">
+          <i class="fas fa-upload"></i><span>Upload Materi</span>
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

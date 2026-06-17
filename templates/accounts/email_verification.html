@@ -1,0 +1,68 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Verifikasi Email - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative w-full max-w-md">
+    <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/30 p-8 text-center">
+      {% if user.is_verified %}
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+        <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">Email Terverifikasi</h2>
+      <p class="text-blue-200/70">Email Anda sudah terverifikasi. Terima kasih!</p>
+      {% else %}
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center">
+        <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">Verifikasi Email</h2>
+      <p class="text-blue-200/70 mb-6">
+        Kirim tautan verifikasi ke <strong class="text-blue-200">{{ user.email }}</strong>
+      </p>
+
+      <form method="post" action="{% url 'accounts:email_verify' %}"
+            hx-post="{% url 'accounts:email_verify' %}" hx-target="this" hx-swap="outerHTML"
+            x-data="{ loading: false }">
+        {% csrf_token %}
+        <button type="submit"
+          :disabled="loading"
+          @click="loading = true"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+          <span x-show="!loading">Kirim Tautan Verifikasi</span>
+          <span x-show="loading" class="flex items-center space-x-2">
+            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span>Mengirim...</span>
+          </span>
+        </button>
+      </form>
+      {% endif %}
+
+      <div class="mt-6 pt-4 border-t border-white/10">
+        <a href="{% url 'accounts:profile' %}"
+          class="inline-flex items-center text-blue-300 hover:text-blue-200 transition-colors">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Kembali ke profil
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

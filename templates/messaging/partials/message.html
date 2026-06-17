@@ -1,0 +1,55 @@
+{% load static %}
+<div class="flex {% if msg.sender == user %}justify-end{% else %}justify-start{% endif %} mb-3 message-item" id="msg-{{ msg.id }}">
+  <div class="max-w-[75%] sm:max-w-[65%] {% if msg.sender == user %}order-1{% endif %}">
+    <div class="flex items-end space-x-2 {% if msg.sender == user %}flex-row-reverse space-x-reverse{% endif %}">
+      {% if msg.sender != user %}
+      <div class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow">
+        {{ msg.sender.get_full_name|default:msg.sender.username|first|upper }}
+      </div>
+      {% endif %}
+      <div class="group relative">
+        <div class="px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-lg backdrop-blur-md
+          {% if msg.sender == user %}
+            bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-md
+          {% else %}
+            bg-white/10 dark:bg-gray-800/40 text-blue-100 border border-white/10 rounded-bl-md
+          {% endif %}">
+          {% if msg.body %}
+          <p class="whitespace-pre-wrap break-words">{{ msg.body }}</p>
+          {% endif %}
+          {% if msg.attachment %}
+          <div class="mt-2 pt-2 border-t border-white/20">
+            {% with ext=msg.attachment.name|lower %}
+            {% if ext|slice:'-4:' == '.jpg' or ext|slice:'-4:' == '.png' or ext|slice:'-5:' == '.jpeg' or ext|slice:'-4:' == '.gif' %}
+            <a href="{{ msg.attachment.url }}" target="_blank" class="block rounded-lg overflow-hidden hover:opacity-90 transition-opacity">
+              <img src="{{ msg.attachment.url }}" alt="Attachment" class="max-w-full h-auto rounded-lg max-h-48 object-cover">
+            </a>
+            {% else %}
+            <a href="{{ msg.attachment.url }}" target="_blank"
+              class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-sm">
+              <i class="fas fa-paperclip text-blue-300"></i>
+              <span class="truncate">{{ msg.attachment.name|cut:'chat_attachments/' }}</span>
+              <i class="fas fa-external-link-alt text-blue-300/50 ml-auto"></i>
+            </a>
+            {% endif %}
+            {% endwith %}
+          </div>
+          {% endif %}
+        </div>
+        <!-- Time + Read Receipt -->
+        <div class="flex items-center space-x-1 mt-1 {% if msg.sender == user %}justify-end{% endif %} px-1">
+          <span class="text-[10px] text-blue-200/40">{{ msg.created_at|date:'H:i' }}</span>
+          {% if msg.sender == user %}
+          <span class="text-[10px]">
+            {% if msg.is_read %}
+            <i class="fas fa-check-double text-blue-400"></i>
+            {% else %}
+            <i class="fas fa-check text-blue-200/40"></i>
+            {% endif %}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

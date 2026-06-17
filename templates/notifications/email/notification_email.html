@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden;">
+    <div style="background: linear-gradient(135deg, #1e3a5f, #2d1b69); padding: 30px; text-align: center;">
+      <h1 style="color: #fff; margin: 0; font-size: 24px;">SPADA UMG</h1>
+      <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0;">Notifikasi Baru</p>
+    </div>
+    <div style="padding: 30px;">
+      <h2 style="color: #333; font-size: 20px; margin: 0 0 10px;">{{ notification.title }}</h2>
+      <p style="color: #666; line-height: 1.6;">{{ notification.message }}</p>
+      {% if notification.link %}
+      <div style="margin-top: 20px;">
+        <a href="{{ site_url }}{{ notification.link }}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #1e3a5f, #2d1b69); color: #fff; text-decoration: none; border-radius: 8px;">Lihat Detail</a>
+      </div>
+      {% endif %}
+    </div>
+    <div style="background: #f8f8f8; padding: 20px; text-align: center; font-size: 12px; color: #999;">
+      <p>Universitas Muhammadiyah Gresik</p>
+    </div>
+  </div>
+</body>
+</html>

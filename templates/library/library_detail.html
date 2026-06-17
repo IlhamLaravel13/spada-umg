@@ -1,0 +1,165 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ item.title }} - Perpustakaan Digital{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'library:list' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white truncate">Detail Item</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-6 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-1">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <div class="h-64 bg-gradient-to-br from-blue-600/20 to-purple-700/20 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+            {% if item.cover_image %}
+            <img src="{{ item.cover_image.url }}" alt="{{ item.title }}" class="w-full h-full object-contain">
+            {% else %}
+            <i class="fas fa-file-alt text-6xl text-blue-300/40"></i>
+            {% endif %}
+          </div>
+          <span class="inline-flex px-3 py-1 rounded-lg text-sm font-medium bg-blue-600/30 text-blue-200 border border-blue-400/30 mb-4">{{ item.get_item_type_display }}</span>
+          <div class="mt-4 space-y-3">
+            <a href="{% url 'library:download' item.pk %}" class="flex items-center justify-center space-x-2 w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+              <i class="fas fa-download"></i>
+              <span>Download ({{ item.download_count }})</span>
+            </a>
+            {% if item.uploaded_by == request.user or request.user.is_admin %}
+            <div class="flex space-x-2">
+              <a href="{% url 'library:edit' item.pk %}" class="flex-1 flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-yellow-600/30 hover:bg-yellow-600/50 text-yellow-200 border border-yellow-400/30 text-sm transition-all">
+                <i class="fas fa-edit"></i><span>Edit</span>
+              </a>
+              <button type="button" @click="if(confirm('Hapus item ini?')){ fetch('{% url 'library:delete' item.pk %}', {method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}'}}).then(()=>window.location='{% url 'library:list' %}'); }" class="flex-1 flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-red-600/30 hover:bg-red-600/50 text-red-200 border border-red-400/30 text-sm transition-all">
+                <i class="fas fa-trash"></i><span>Hapus</span>
+              </button>
+            </div>
+            {% endif %}
+          </div>
+          <div class="mt-4 pt-4 border-t border-white/10">
+            <div class="flex items-center justify-between text-sm text-blue-200/60">
+              <span><i class="fas fa-eye mr-1"></i>{{ item.view_count }} dilihat</span>
+              <span><i class="fas fa-download mr-1"></i>{{ item.download_count }} diunduh</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 space-y-6">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <h1 class="text-2xl font-bold text-white mb-2">{{ item.title }}</h1>
+          <p class="text-blue-200/80 text-lg mb-6"><i class="fas fa-user mr-2"></i>{{ item.author }}</p>
+
+          {% if item.description %}
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-blue-200/80 mb-2">Deskripsi</h3>
+            <p class="text-blue-200/60 text-sm leading-relaxed">{{ item.description }}</p>
+          </div>
+          {% endif %}
+
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {% if item.category %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">Kategori</p>
+              <p class="text-sm text-white">{{ item.category.name }}</p>
+            </div>
+            {% endif %}
+            {% if item.publisher %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">Penerbit</p>
+              <p class="text-sm text-white">{{ item.publisher }}</p>
+            </div>
+            {% endif %}
+            {% if item.publication_year %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">Tahun</p>
+              <p class="text-sm text-white">{{ item.publication_year }}</p>
+            </div>
+            {% endif %}
+            {% if item.isbn %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">ISBN</p>
+              <p class="text-sm text-white">{{ item.isbn }}</p>
+            </div>
+            {% endif %}
+            {% if item.pages %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">Halaman</p>
+              <p class="text-sm text-white">{{ item.pages }}</p>
+            </div>
+            {% endif %}
+            {% if item.language %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">Bahasa</p>
+              <p class="text-sm text-white">{{ item.language }}</p>
+            </div>
+            {% endif %}
+            {% if item.faculty %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">Fakultas</p>
+              <p class="text-sm text-white">{{ item.faculty.name }}</p>
+            </div>
+            {% endif %}
+            {% if item.study_program %}
+            <div class="bg-white/5 rounded-xl p-3">
+              <p class="text-xs text-blue-300/50 mb-1">Program Studi</p>
+              <p class="text-sm text-white">{{ item.study_program.name }}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          {% if item.tags %}
+          <div class="mt-4 pt-4 border-t border-white/10">
+            <h3 class="text-sm font-semibold text-blue-200/80 mb-2">Tags</h3>
+            <div class="flex flex-wrap gap-2">
+              {% for tag in item.tags.split %}
+              <span class="px-2.5 py-1 rounded-lg text-xs bg-blue-500/15 text-blue-200/70 border border-blue-400/20">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if item.file %}
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <h3 class="text-sm font-semibold text-blue-200/80 mb-4"><i class="fas fa-eye mr-2"></i>Pratinjau</h3>
+          <div class="rounded-xl overflow-hidden bg-white/5" style="height: 600px;">
+            <iframe src="{{ item.file.url }}#toolbar=1" class="w-full h-full" frameborder="0"></iframe>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if related_items %}
+    <div class="mt-8">
+      <h2 class="text-lg font-bold text-white mb-4">Item Terkait</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {% for related in related_items %}
+        <a href="{% url 'library:detail' related.pk %}" class="group backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-xl border border-white/20 p-3 hover:bg-white/20 transition-all">
+          <div class="h-24 bg-gradient-to-br from-blue-600/20 to-purple-700/20 rounded-lg flex items-center justify-center mb-2">
+            <i class="fas fa-file-alt text-2xl text-blue-300/40"></i>
+          </div>
+          <h4 class="text-sm font-medium text-white group-hover:text-blue-300 transition-colors line-clamp-2">{{ related.title }}</h4>
+          <p class="text-xs text-blue-200/40">{{ related.author|truncatechars:30 }}</p>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Kategori Perpustakaan - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'library:list' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Kategori Perpustakaan</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-6 pb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for cat in categories %}
+      <a href="{% url 'library:list' %}?category={{ cat.id }}" class="group backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 hover:bg-white/20 dark:hover:bg-gray-900/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
+        <div class="flex items-center space-x-4 mb-4">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
+            <i class="fas fa-{{ cat.icon }} text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white group-hover:text-blue-300 transition-colors">{{ cat.name }}</h3>
+            {% if cat.description %}
+            <p class="text-blue-200/60 text-sm">{{ cat.description|truncatechars:80 }}</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-blue-200/60">{{ cat.item_count }} item</span>
+          <span class="text-blue-300/40 group-hover:text-blue-300/60 transition-colors"><i class="fas fa-arrow-right"></i></span>
+        </div>
+      </a>
+      {% empty %}
+      <div class="col-span-full">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+            <i class="fas fa-folder-open text-3xl text-blue-300/50"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Belum Ada Kategori</h3>
+          <p class="text-blue-200/60 mb-6">Belum ada kategori perpustakaan yang tersedia.</p>
+          <a href="{% url 'library:list' %}" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+            <i class="fas fa-arrow-left"></i><span>Kembali ke Perpustakaan</span>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

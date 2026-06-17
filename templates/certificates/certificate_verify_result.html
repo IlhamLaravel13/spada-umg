@@ -1,0 +1,133 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Hasil Verifikasi - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gray-50 dark:bg-gray-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-2xl">
+    {% if result and result.certificate %}
+    {% with cert=result.certificate %}
+    <!-- Result Card -->
+    <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/30 overflow-hidden">
+
+      <!-- Status Banner -->
+      <div class="px-6 py-6 text-center
+        {% if result.is_valid %}bg-gradient-to-r from-green-600 to-emerald-700
+        {% else %}bg-gradient-to-r from-red-600 to-rose-700{% endif %}">
+        {% if result.is_valid %}
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white">Sertifikat Valid</h2>
+        <p class="text-green-100 mt-1">Sertifikat ini asli dan terverifikasi</p>
+        {% else %}
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white">Sertifikat Tidak Valid</h2>
+        <p class="text-red-100 mt-1">Sertifikat ini tidak dapat diverifikasi</p>
+        {% if result.reasons %}
+        <ul class="mt-3 space-y-1">
+          {% for reason in result.reasons %}
+          <li class="text-sm text-red-200">• {{ reason }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% endif %}
+      </div>
+
+      <!-- Certificate Detail -->
+      <div class="p-6">
+        <!-- Header -->
+        <div class="text-center mb-6">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-0.5 shadow-lg">
+            <div class="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
+              <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {{ cert.user.first_name|first|default:cert.user.username|first|upper }}
+              </span>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ cert.title }}</h3>
+          <p class="text-gray-500 dark:text-gray-400 mt-1">{{ cert.get_certificate_type_display }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama</label>
+            <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ cert.user.get_full_name|default:cert.user.username }}</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nomor Sertifikat</label>
+            <p class="mt-1 text-sm font-mono text-gray-900 dark:text-white break-all">{{ cert.certificate_number }}</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tanggal Terbit</label>
+            <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ cert.issued_date|date:"d F Y" }}</p>
+          </div>
+          {% if cert.expiry_date %}
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kadaluwarsa</label>
+            <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ cert.expiry_date|date:"d F Y" }}</p>
+          </div>
+          {% endif %}
+          <div class="md:col-span-2">
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Deskripsi</label>
+            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ cert.description|default:'-' }}</p>
+          </div>
+        </div>
+
+        {% if cert.qr_code %}
+        <div class="mt-6 flex justify-center">
+          <div class="text-center">
+            <img src="{{ cert.qr_code.url }}" alt="QR Code" class="w-24 h-24 mx-auto opacity-60">
+            <p class="text-xs text-gray-400 mt-1">QR Code Sertifikat</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 text-center">
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Diverifikasi melalui sistem SPADA UMG &bull; {% now "d F Y H:i" %}
+        </p>
+        {% if cert.pdf_file %}
+        <a href="{{ cert.pdf_file.url }}" target="_blank"
+          class="inline-flex items-center mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Download PDF Sertifikat
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% else %}
+    <!-- Not Found -->
+    <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/30 p-8 text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+        <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Sertifikat Tidak Ditemukan</h3>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        Nomor sertifikat yang Anda masukkan tidak ditemukan dalam sistem.
+      </p>
+      <a href="{% url 'certificates:verify' %}"
+        class="inline-flex items-center mt-6 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold transition-all duration-200">
+        Coba Lagi
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

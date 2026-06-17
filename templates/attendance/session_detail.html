@@ -1,0 +1,172 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ session.title }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 py-6">
+    <!-- Header -->
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 mb-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <a href="{% url 'attendance:session_list' %}" class="text-blue-300/70 hover:text-white transition-colors text-sm mb-2 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali
+          </a>
+          <h1 class="text-2xl font-bold text-white mt-1">{{ session.title }}</h1>
+          <p class="text-blue-200/60 mt-1">{{ session.class_meta.course.code }} - {{ session.class_meta.name }}</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          {% if session.is_active %}
+          <span class="px-3 py-1.5 rounded-xl text-sm bg-green-500/20 text-green-300 border border-green-400/30"><i class="fas fa-circle text-xs mr-1"></i>Aktif</span>
+          {% else %}
+          <span class="px-3 py-1.5 rounded-xl text-sm bg-red-500/20 text-red-300 border border-red-400/30"><i class="fas fa-circle text-xs mr-1"></i>Nonaktif</span>
+          {% endif %}
+          {% if user.is_dosen or user.is_admin %}
+          <a href="{% url 'attendance:session_update' session.pk %}" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-yellow-300 transition-all">
+            <i class="fas fa-pen text-sm"></i>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p class="text-blue-200/50 text-xs">Tanggal</p>
+          <p class="text-white font-semibold">{{ session.date|date:'d M Y' }}</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p class="text-blue-200/50 text-xs">Waktu</p>
+          <p class="text-white font-semibold">{{ session.start_time|time:'H:i' }} - {{ session.end_time|time:'H:i' }}</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p class="text-blue-200/50 text-xs">Pertemuan</p>
+          <p class="text-white font-semibold">#{{ session.meeting_number }}</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p class="text-blue-200/50 text-xs">Total Hadir</p>
+          <p class="text-white font-semibold">{{ present_count }} / {{ total_students }}</p>
+        </div>
+      </div>
+
+      {% if session.topic %}
+      <div class="mt-4 p-3 rounded-xl bg-white/5 border border-white/10">
+        <p class="text-blue-200/50 text-xs">Topik</p>
+        <p class="text-white">{{ session.topic }}</p>
+      </div>
+      {% endif %}
+
+      {% if session.qr_code %}
+      <div class="mt-4 flex items-center space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
+        <img src="{{ session.qr_code.url }}" alt="QR Code" class="w-24 h-24 rounded-xl bg-white p-1">
+        <div>
+          <p class="text-white font-semibold">QR Code Absensi</p>
+          <p class="text-blue-200/50 text-sm">Pindai QR ini untuk melakukan absensi</p>
+          <a href="{% url 'attendance:take_attendance' session.pk %}" class="inline-flex items-center space-x-1 mt-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-500/25">
+            <i class="fas fa-camera"></i><span>Absen Sekarang</span>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Attendance List -->
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden">
+      <div class="p-6 border-b border-white/10 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-white">Daftar Absensi</h2>
+        <span class="px-3 py-1 rounded-xl text-sm bg-blue-500/20 text-blue-300 border border-blue-400/30">{{ attendances.count }} Mahasiswa</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-white/10 text-left">
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase tracking-wider">No</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase tracking-wider">NIM</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase tracking-wider">Nama</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase tracking-wider">Waktu</th>
+              <th class="px-6 py-3 text-xs font-medium text-blue-200/60 uppercase tracking-wider">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceTableBody">
+            {% for attendance in attendances %}
+            <tr class="border-b border-white/5 hover:bg-white/5 transition-colors" id="attendance-row-{{ attendance.pk }}">
+              <td class="px-6 py-4 text-sm text-white">{{ forloop.counter }}</td>
+              <td class="px-6 py-4 text-sm text-blue-200/70">{{ attendance.student.nim|default:'-' }}</td>
+              <td class="px-6 py-4 text-sm text-white font-medium">{{ attendance.student.get_full_name|default:attendance.student.username }}</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 rounded-full text-xs font-medium 
+                  {% if attendance.status == 'present' %}bg-green-500/20 text-green-300 border border-green-400/30
+                  {% elif attendance.status == 'late' %}bg-yellow-500/20 text-yellow-300 border border-yellow-400/30
+                  {% elif attendance.status == 'sick' %}bg-blue-500/20 text-blue-300 border border-blue-400/30
+                  {% elif attendance.status == 'excused' %}bg-purple-500/20 text-purple-300 border border-purple-400/30
+                  {% else %}bg-red-500/20 text-red-300 border border-red-400/30{% endif %}">
+                  {{ attendance.get_status_display }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-blue-200/70">{{ attendance.check_in_time|date:'H:i' }}</td>
+              <td class="px-6 py-4">
+                {% if user.is_dosen or user.is_admin %}
+                <select hx-post="{% url 'attendance:update_attendance_status' attendance.pk %}" hx-trigger="change" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' name="status"
+                  class="text-xs px-2 py-1 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                  {% for val, label in attendance.STATUS_CHOICES %}
+                  <option value="{{ val }}" class="bg-gray-800" {% if attendance.status == val %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="px-6 py-12 text-center text-blue-200/50">
+                <i class="fas fa-user-clock text-3xl mb-2"></i>
+                <p>Belum ada absensi</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if user.is_dosen or user.is_admin %}
+    <!-- Manual Check-in -->
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 mt-6">
+      <h2 class="text-lg font-bold text-white mb-4">Manual Check-in</h2>
+      <form hx-post="{% url 'attendance:manual_checkin' session.pk %}" hx-target="#attendanceTableBody" hx-swap="outerHTML" class="flex items-end space-x-3">
+        {% csrf_token %}
+        <div class="flex-1">
+          <label class="block text-sm text-blue-200/70 mb-1">Mahasiswa</label>
+          <select name="student_id" required class="w-full px-4 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="" class="bg-gray-800">Pilih mahasiswa...</option>
+            {% for enrollment in session.class_meta.enrollments.all %}
+            <option value="{{ enrollment.student.id }}" class="bg-gray-800">{{ enrollment.student.get_full_name|default:enrollment.student.username }} ({{ enrollment.student.nim|default:'-' }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-blue-200/70 mb-1">Status</label>
+          <select name="status" class="px-4 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="present" class="bg-gray-800">Hadir</option>
+            <option value="late" class="bg-gray-800">Terlambat</option>
+            <option value="sick" class="bg-gray-800">Sakit</option>
+            <option value="excused" class="bg-gray-800">Izin</option>
+          </select>
+        </div>
+        <button type="submit" class="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+          <i class="fas fa-check mr-1"></i>Check-in
+        </button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

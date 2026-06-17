@@ -1,0 +1,189 @@
+{% extends 'spada_umg/base.html' %}
+{% load static humanize %}
+
+{% block title %}Riwayat Pembayaran - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gray-50 dark:bg-gray-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+     x-data="{ filterStatus: '{{ current_status }}', filterType: '{{ current_type }}' }">
+
+  <!-- Header -->
+  <div class="relative mb-8">
+    <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 p-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Riwayat Pembayaran</h1>
+          <p class="text-gray-500 dark:text-gray-400 mt-1">Kelola dan pantau semua pembayaran Anda</p>
+        </div>
+        <a href="{% url 'payments:create' %}"
+          class="inline-flex items-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Buat Pembayaran
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+    <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/30 text-center">
+      <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Total</p>
+    </div>
+    <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/30 text-center">
+      <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.success }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Sukses</p>
+    </div>
+    <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/30 text-center">
+      <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.pending }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Pending</p>
+    </div>
+    <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/30 text-center">
+      <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.failed }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Gagal</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 p-4 mb-6">
+    <div class="flex flex-wrap gap-4">
+      <select x-model="filterStatus" @change="window.location.href = '?status=' + filterStatus + (filterType ? '&type=' + filterType : '')"
+        class="rounded-xl bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500/50">
+        <option value="">Semua Status</option>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="success">Success</option>
+        <option value="failed">Failed</option>
+        <option value="expired">Expired</option>
+        <option value="refunded">Refunded</option>
+      </select>
+      <select x-model="filterType" @change="window.location.href = '?type=' + filterType + (filterStatus ? '&status=' + filterStatus : '')"
+        class="rounded-xl bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500/50">
+        <option value="">Semua Tipe</option>
+        <option value="ukt">UKT</option>
+        <option value="spp">SPP</option>
+        <option value="semester">Semester</option>
+        <option value="registrasi">Registrasi</option>
+        <option value="other">Lainnya</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="mb-6 space-y-2">
+    {% for message in messages %}
+    <div class="px-4 py-3 rounded-lg text-sm font-medium backdrop-blur-md
+      {% if message.tags == 'success' %}bg-green-500/20 text-green-800 dark:text-green-200 border border-green-400/30
+      {% elif message.tags == 'error' %}bg-red-500/20 text-red-800 dark:text-red-200 border border-red-400/30
+      {% else %}bg-blue-500/20 text-blue-800 dark:text-blue-200 border border-blue-400/30{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Payment List -->
+  <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 overflow-hidden">
+    {% if payments %}
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-gray-700">
+            <th class="text-left px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invoice</th>
+            <th class="text-left px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipe</th>
+            <th class="text-left px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Jumlah</th>
+            <th class="text-left px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Metode</th>
+            <th class="text-left px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+            <th class="text-left px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tanggal</th>
+            <th class="text-right px-6 py-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+          {% for payment in payments %}
+          <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+            <td class="px-6 py-4">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ payment.invoice_number }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-gray-600 dark:text-gray-300">{{ payment.get_payment_type_display }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm font-semibold text-gray-900 dark:text-white">Rp {{ payment.amount|floatformat:0|intcomma }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-gray-600 dark:text-gray-300">{{ payment.get_payment_method_display|default:'-' }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                {% if payment.status == 'success' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+                {% elif payment.status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
+                {% elif payment.status == 'processing' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+                {% elif payment.status == 'failed' or payment.status == 'expired' %}bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300
+                {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                {{ payment.get_status_display }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-gray-500 dark:text-gray-400">{{ payment.created_at|date:"d M Y" }}</span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <a href="{% url 'payments:detail' payment.id %}"
+                class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
+                Detail
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}
+        </p>
+        <div class="flex space-x-2">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+            Sebelumnya
+          </a>
+          {% endif %}
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}"
+            class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white/50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+            Selanjutnya
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-16 px-6">
+      <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+      </svg>
+      <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Belum Ada Pembayaran</h3>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Anda belum memiliki riwayat pembayaran.</p>
+      <a href="{% url 'payments:create' %}"
+        class="inline-flex items-center mt-6 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold transition-all duration-200">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Buat Pembayaran Pertama
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

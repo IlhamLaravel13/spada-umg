@@ -1,0 +1,100 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Pesan - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ sidebarOpen: false, searchQuery: '' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Pesan</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-all">
+          <i class="fas fa-bars"></i>
+        </button>
+        <a href="{% url 'messaging:start_conversation' %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center space-x-2">
+          <i class="fas fa-plus"></i><span class="hidden sm:inline">Pesan Baru</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 pb-12 mt-6 flex-1 flex">
+    <!-- Sidebar Overlay Mobile -->
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-20 lg:hidden"></div>
+
+    <!-- Conversation List Sidebar -->
+    <div class="w-full lg:w-80 xl:w-96 flex-shrink-0" :class="sidebarOpen ? 'fixed inset-y-0 left-0 z-30 w-72' : 'hidden lg:block'" @click.away="sidebarOpen = false">
+      <div class="h-full lg:h-auto backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden flex flex-col">
+        <!-- Search -->
+        <div class="p-3 border-b border-white/10">
+          <div class="relative">
+            <input type="text" x-model="searchQuery"
+              placeholder="Cari percakapan..."
+              class="w-full pl-10 pr-4 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-sm"></i>
+          </div>
+        </div>
+
+        <!-- Conversation List -->
+        <div class="flex-1 overflow-y-auto"
+             hx-get="{% url 'messaging:conversation_list' %}"
+             hx-trigger="load, every:10s"
+             hx-target="#conversation-list"
+             hx-swap="innerHTML">
+          <div id="conversation-list" class="divide-y divide-white/5">
+            {% include 'messaging/conversation_list.html' %}
+          </div>
+        </div>
+
+        <!-- Mobile close button -->
+        <div class="p-3 border-t border-white/10 lg:hidden">
+          <button @click="sidebarOpen = false" class="w-full py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm transition-all">
+            <i class="fas fa-times mr-2"></i>Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chat Pane -->
+    <div class="flex-1 lg:ml-6 flex flex-col">
+      {% if conversation %}
+        {% include 'messaging/conversation_detail.html' %}
+      {% else %}
+      <div class="flex-1 backdrop-blur-xl bg-white/5 dark:bg-gray-900/20 rounded-2xl border border-white/10 flex items-center justify-center">
+        <div class="text-center px-8">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500/30 flex items-center justify-center">
+            <i class="fas fa-comment-dots text-4xl text-blue-300/60"></i>
+          </div>
+          <h2 class="text-xl font-bold text-white mb-2">Pesan Anda</h2>
+          <p class="text-blue-200/60 text-sm mb-6">Pilih percakapan dari daftar atau mulai pesan baru.</p>
+          <a href="{% url 'messaging:start_conversation' %}" class="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+            <i class="fas fa-plus mr-2"></i>Pesan Baru
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.body.addEventListener('htmx:afterSwap', function(evt) {
+    if (evt.detail.target.id === 'conversation-list') {
+      document.querySelectorAll('[x-data]').forEach(el => Alpine.initTree(el));
+    }
+  });
+</script>
+{% endblock %}

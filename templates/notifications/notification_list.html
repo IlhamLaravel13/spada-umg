@@ -1,0 +1,62 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Notifikasi - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col"
+  x-data="{ selectedType: '{{ selected_type|default:'' }}' }"
+  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Notifikasi</h1>
+        <button hx-post="{% url 'notifications:mark_all_read' %}" hx-trigger="click"
+          class="text-xs px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-blue-300 transition-all">
+          <i class="fas fa-check-double mr-1"></i>Tandai Dibaca
+        </button>
+      </div>
+      <div class="flex items-center space-x-3">
+        <div class="relative">
+          <select x-model="selectedType" @change="window.location.href = selectedType ? '?type=' + selectedType : '?'"
+            class="w-48 pl-10 pr-4 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm appearance-none cursor-pointer">
+            <option value="" class="bg-gray-800 text-white">Semua Tipe</option>
+            {% for type_val, type_label in types %}
+            <option value="{{ type_val }}" class="bg-gray-800 text-white" {% if selected_type == type_val %}selected{% endif %}>{{ type_label }}</option>
+            {% endfor %}
+          </select>
+          <i class="fas fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-sm pointer-events-none"></i>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 pb-12 mt-6">
+    <div id="notificationList" class="space-y-4"
+      hx-get="{% url 'notifications:list' %}?type={{ selected_type }}"
+      hx-trigger="notificationListChanged from:body"
+      hx-target="#notificationList"
+      hx-swap="innerHTML">
+      {% include 'notifications/partials/notification_list_items.html' %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.body.addEventListener('notificationCountChanged', function() {
+    htmx.trigger('#notificationBellContainer', 'notificationCountChanged');
+  });
+</script>
+{% endblock %}

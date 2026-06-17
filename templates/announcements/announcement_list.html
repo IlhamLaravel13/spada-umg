@@ -1,0 +1,187 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Pengumuman - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ deleteId: null, search: '{{ request.GET.q|default:'' }}', filterCat: '{{ request.GET.category|default:'' }}' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Pengumuman</h1>
+        {% if user.is_authenticated %}
+        <button hx-post="{% url 'announcements:announcement_mark_all_read' %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-trigger="click" class="text-xs px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-blue-300 transition-all">
+          <i class="fas fa-check-double mr-1"></i>Tandai Dibaca
+        </button>
+        {% endif %}
+      </div>
+      <div class="flex items-center space-x-3">
+        <div class="relative">
+          <input type="text" x-model="search" @input.debounce="window.location.href = '?q=' + search + (filterCat ? '&category=' + filterCat : '')"
+            placeholder="Cari pengumuman..." class="w-64 pl-10 pr-4 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-sm"></i>
+        </div>
+        {% if user.is_dosen or user.is_admin %}
+        <a href="{% url 'announcements:announcement_create' %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center space-x-2">
+          <i class="fas fa-plus"></i><span>Buat</span>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Important Banner -->
+  {% if important_announcements %}
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-4">
+    {% for imp in important_announcements %}
+    <a href="{% url 'announcements:announcement_detail' imp.id %}" class="block backdrop-blur-xl bg-red-500/15 dark:bg-red-900/20 rounded-2xl border border-red-400/30 p-4 mb-2 hover:bg-red-500/20 transition-all group">
+      <div class="flex items-start space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-bullhorn text-red-300"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded text-xs font-medium bg-red-500/30 text-red-200 border border-red-400/30">Penting</span>
+            <span class="text-red-200/60 text-xs">{{ imp.created_at|date:'d M Y H:i' }}</span>
+          </div>
+          <h3 class="text-white font-semibold mt-1 group-hover:text-red-200 transition-colors">{{ imp.title }}</h3>
+          <p class="text-red-200/60 text-sm mt-1 line-clamp-1">{{ imp.content|truncatewords:20 }}</p>
+        </div>
+        <i class="fas fa-chevron-right text-red-300/50 mt-2"></i>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Category Filter -->
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-4">
+    <div class="flex space-x-2 mb-4 overflow-x-auto pb-2 flex-wrap gap-y-2">
+      <a href="?" class="px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap {% if not request.GET.category %}bg-white/20 text-white{% else %}bg-white/10 text-blue-200/70 hover:text-white hover:bg-white/20{% endif %}">
+        Semua
+      </a>
+      {% for cat_val, cat_label in categories %}
+      <a href="?category={{ cat_val }}" class="px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap {% if request.GET.category == cat_val %}bg-white/20 text-white{% else %}bg-white/10 text-blue-200/70 hover:text-white hover:bg-white/20{% endif %}">
+        {{ cat_label }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 pb-12">
+    <div class="space-y-4" id="announcementList">
+      {% for announcement in announcements %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden hover:border-white/30 transition-all duration-300 group {% if announcement.is_important %}border-red-400/30 bg-red-500/5{% endif %}"
+        id="announcement-{{ announcement.pk }}">
+        <div class="p-6">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-2 mb-1">
+                {% if announcement.is_important %}
+                <span class="px-2 py-0.5 rounded text-xs font-medium bg-red-500/30 text-red-200 border border-red-400/30">Penting</span>
+                {% endif %}
+                {% if announcement.id not in unread_ids and user.is_authenticated %}
+                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                {% endif %}
+                <span class="px-2 py-0.5 rounded text-xs font-medium bg-white/10 text-blue-200 border border-white/20">{{ announcement.get_category_display }}</span>
+                <span class="text-blue-200/50 text-xs">
+                  <i class="fas fa-users mr-1"></i>{{ announcement.get_audience_display }}
+                </span>
+              </div>
+              <h3 class="text-lg font-bold text-white group-hover:text-blue-300 transition-colors">
+                <a href="{% url 'announcements:announcement_detail' announcement.pk %}">{{ announcement.title }}</a>
+              </h3>
+              <p class="text-blue-200/60 text-sm mt-2 line-clamp-2">{{ announcement.content|truncatewords:40 }}</p>
+              <div class="flex items-center space-x-4 mt-3 text-xs text-blue-200/50">
+                <span><i class="far fa-user mr-1"></i>{{ announcement.created_by.get_full_name|default:announcement.created_by.username|default:'Sistem' }}</span>
+                <span><i class="far fa-clock mr-1"></i>{{ announcement.created_at|date:'d M Y H:i' }}</span>
+                {% if announcement.attachment %}
+                <span><i class="fas fa-paperclip mr-1"></i>Lampiran</span>
+                {% endif %}
+                <span><i class="far fa-eye mr-1"></i>{{ announcement.reads.count }} dibaca</span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-1 ml-4">
+              {% if user.is_dosen or user.is_admin %}
+              <a href="{% url 'announcements:announcement_update' announcement.pk %}" class="p-1.5 rounded-lg hover:bg-white/10 text-yellow-300/70 hover:text-yellow-200 transition-all" title="Edit">
+                <i class="fas fa-pen text-xs"></i>
+              </a>
+              <form method="post" action="{% url 'announcements:announcement_toggle_publish' announcement.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="p-1.5 rounded-lg hover:bg-white/10 text-blue-300/70 hover:text-blue-200 transition-all" title="{% if announcement.is_published %}Unpublish{% else %}Publish{% endif %}">
+                  <i class="fas {% if announcement.is_published %}fa-eye{% else %}fa-eye-slash{% endif %} text-xs"></i>
+                </button>
+              </form>
+              <button @click="deleteId = {{ announcement.pk }}" class="p-1.5 rounded-lg hover:bg-white/10 text-red-300/70 hover:text-red-200 transition-all" title="Hapus">
+                <i class="fas fa-trash text-xs"></i>
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center py-16">
+        <div class="text-blue-200/50">
+          <i class="fas fa-bullhorn text-5xl mb-4"></i>
+          <p class="text-xl font-medium text-white">Tidak Ada Pengumuman</p>
+          <p class="text-sm mt-2 text-blue-200/60">Belum ada pengumuman untuk ditampilkan.</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="flex justify-center mt-8 space-x-2">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+        class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm transition-all border border-white/10">
+        <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
+      </a>
+      {% endif %}
+      <span class="px-4 py-2 text-blue-200/70 text-sm">Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+        class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm transition-all border border-white/10">
+        Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if user.is_dosen or user.is_admin %}
+  <!-- Delete Modal -->
+  <div x-show="deleteId" class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="deleteId = null"></div>
+    <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/50 rounded-2xl border border-white/20 p-6 max-w-md w-full mx-4 shadow-2xl">
+      <div class="text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+          <i class="fas fa-exclamation-triangle text-red-300 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Hapus Pengumuman?</h3>
+        <p class="text-blue-200/70 text-sm mb-6">Tindakan ini tidak dapat dibatalkan.</p>
+        <div class="flex space-x-3 justify-center">
+          <button @click="deleteId = null" class="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all text-sm">Batal</button>
+          <form method="post" :action="'/announcements/' + deleteId + '/delete/'" hx-post hx-target="body" hx-swap="outerHTML">
+            {% csrf_token %}
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium transition-all text-sm shadow-lg shadow-red-500/25">
+              <i class="fas fa-trash mr-2"></i>Hapus
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ certificate.title }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gray-50 dark:bg-gray-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- Back -->
+  <a href="{% url 'certificates:list' %}"
+    class="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-6 transition-colors">
+    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    Kembali
+  </a>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Certificate Preview -->
+    <div class="lg:col-span-2">
+      <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 overflow-hidden">
+        <!-- Preview -->
+        <div class="aspect-[1.414/1] bg-gradient-to-br from-blue-600 to-purple-700 relative flex items-center justify-center p-8">
+          <div class="absolute inset-0 opacity-10">
+            <svg class="w-full h-full" viewBox="0 0 600 424" fill="none">
+              <rect x="30" y="30" width="540" height="364" stroke="white" stroke-width="3" fill="none"/>
+              <rect x="45" y="45" width="510" height="334" stroke="white" stroke-width="1" fill="none"/>
+              <line x1="60" y1="212" x2="540" y2="212" stroke="white" stroke-width="1" stroke-dasharray="5 5"/>
+            </svg>
+          </div>
+          <div class="relative text-center text-white">
+            <h2 class="text-3xl font-bold mb-4">{{ certificate.title }}</h2>
+            <p class="text-xl text-blue-200 mb-2">Diberikan kepada</p>
+            <p class="text-2xl font-bold">{{ certificate.user.get_full_name|default:certificate.user.username }}</p>
+            <p class="mt-4 text-sm text-blue-200">{{ certificate.description|default:'' }}</p>
+            <p class="mt-6 text-xs text-blue-300">No. {{ certificate.certificate_number }}</p>
+          </div>
+        </div>
+
+        <!-- QR Code -->
+        {% if certificate.qr_code %}
+        <div class="p-6 flex justify-center">
+          <div class="text-center">
+            <img src="{{ certificate.qr_code.url }}" alt="QR Code" class="w-32 h-32 mx-auto">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Scan untuk verifikasi</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Certificate Info -->
+    <div class="space-y-6">
+      <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Informasi Sertifikat</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nomor</label>
+            <p class="mt-1 text-sm font-mono text-gray-900 dark:text-white break-all">{{ certificate.certificate_number }}</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipe</label>
+            <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ certificate.get_certificate_type_display }}</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tanggal Diterbitkan</label>
+            <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ certificate.issued_date|date:"d F Y" }}</p>
+          </div>
+          {% if certificate.expiry_date %}
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tanggal Kadaluwarsa</label>
+            <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ certificate.expiry_date|date:"d F Y" }}</p>
+          </div>
+          {% endif %}
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</label>
+            <p class="mt-1">
+              {% if certificate.is_verified %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                Terverifikasi
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                Belum Diverifikasi
+              </span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/30 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aksi</h3>
+        <div class="space-y-3">
+          {% if certificate.pdf_file %}
+          <a href="{% url 'certificates:download' certificate.id %}"
+            class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 transition-all duration-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Download PDF
+          </a>
+          {% endif %}
+          {% if certificate.verification_url %}
+          <a href="{{ certificate.verification_url }}" target="_blank"
+            class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            Verifikasi Sertifikat
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Statistik Saya - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Statistik Saya</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 pb-12 mt-6">
+    {% if course_stats %}
+    <div class="grid grid-cols-1 gap-6">
+      {% for stat in course_stats %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden hover:border-white/30 transition-all">
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-white">{{ stat.course_name }}</h3>
+              <p class="text-blue-200/60 text-sm">{{ stat.class_name }}</p>
+            </div>
+          </div>
+
+          <!-- Progress Overview -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-blue-200/60 text-xs uppercase">Kehadiran</p>
+                  <p class="text-2xl font-bold text-white mt-1">{{ stat.attendance_rate }}%</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <i class="fas fa-check-circle text-green-300"></i>
+                </div>
+              </div>
+              <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400" style="width: {{ stat.attendance_rate }}%"></div>
+              </div>
+              <p class="text-xs text-blue-200/50 mt-2">{{ stat.total_sessions }} sesi</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-blue-200/60 text-xs uppercase">Pengumpulan</p>
+                  <p class="text-2xl font-bold text-white mt-1">{{ stat.submission_rate }}%</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                  <i class="fas fa-book text-indigo-300"></i>
+                </div>
+              </div>
+              <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400" style="width: {{ stat.submission_rate }}%"></div>
+              </div>
+              <p class="text-xs text-blue-200/50 mt-2">{{ stat.submitted }}/{{ stat.total_assignments }} tugas</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-blue-200/60 text-xs uppercase">Nilai Rata-rata</p>
+                  <p class="text-2xl font-bold text-white mt-1">{{ stat.grades|length|default:0 }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <i class="fas fa-star text-purple-300"></i>
+                </div>
+              </div>
+              <p class="text-xs text-blue-200/50 mt-1">Tugas dinilai</p>
+            </div>
+          </div>
+
+          <!-- Attendance Bar -->
+          <div class="mb-4">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-blue-200/70">Kehadiran</span>
+              <span class="text-white font-medium">{{ stat.attendance_rate }}%</span>
+            </div>
+            <div class="h-3 rounded-full bg-white/5 overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400" style="width: {{ stat.attendance_rate }}%"></div>
+            </div>
+          </div>
+
+          <!-- Submission Bar -->
+          <div class="mb-4">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-blue-200/70">Pengumpulan Tugas</span>
+              <span class="text-white font-medium">{{ stat.submitted }}/{{ stat.total_assignments }}</span>
+            </div>
+            <div class="h-3 rounded-full bg-white/5 overflow-hidden">
+              {% widthratio stat.submitted stat.total_assignments 100 as sub_pct %}
+              <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400" style="width: {{ sub_pct }}%"></div>
+            </div>
+          </div>
+
+          <!-- Grades List -->
+          {% if stat.grades %}
+          <div class="mt-4 pt-4 border-t border-white/10">
+            <h4 class="text-white font-semibold text-sm mb-3">Nilai Tugas</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-blue-200/60 border-b border-white/10">
+                    <th class="text-left py-2 pr-4">Tugas</th>
+                    <th class="text-right py-2">Nilai</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                  {% for grade in stat.grades %}
+                  <tr class="hover:bg-white/5">
+                    <td class="py-2 pr-4 text-white truncate max-w-xs">{{ grade.assignment__title }}</td>
+                    <td class="py-2 text-right text-white font-medium">{{ grade.grade }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+        <i class="fas fa-user-graduate text-gray-500 text-3xl"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-white mb-2">Belum Ada Data</h3>
+      <p class="text-blue-200/60">Anda belum terdaftar di kelas manapun.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

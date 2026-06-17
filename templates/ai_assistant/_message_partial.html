@@ -1,0 +1,22 @@
+{% if is_user %}
+<div class="flex justify-end mb-4" x-data>
+  <div class="max-w-[75%] bg-gradient-to-l from-blue-600 to-purple-600 rounded-2xl rounded-br-sm px-4 py-3 shadow-lg">
+    <p class="text-white text-sm leading-relaxed">{{ msg.content|linebreaksbr }}</p>
+    <p class="text-xs text-blue-200/50 text-right mt-1">{{ msg.created_at|time:"H:i" }}</p>
+  </div>
+</div>
+{% else %}
+<div class="flex justify-start mb-4" x-data>
+  <div class="max-w-[75%] bg-white/10 dark:bg-gray-800/50 backdrop-blur-md rounded-2xl rounded-bl-sm px-4 py-3 border border-white/10">
+    <div class="flex items-center space-x-2 mb-2">
+      <div class="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+        <i class="fas fa-robot text-xs text-white"></i>
+      </div>
+      <span class="text-xs font-medium text-blue-200/70">AI Assistant</span>
+      <div class="flex-1"></div>
+      <span class="text-xs text-blue-300/40">{{ msg.created_at|time:"H:i" }}</span>
+    </div>
+    <div class="text-blue-100 text-sm leading-relaxed ai-content">{{ msg.content|linebreaksbr }}</div>
+  </div>
+</div>
+{% endif %}

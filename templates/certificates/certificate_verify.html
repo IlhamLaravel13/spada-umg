@@ -1,0 +1,88 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Verifikasi Sertifikat - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+  <!-- Animated background -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative w-full max-w-lg">
+    <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/30 p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-0.5 shadow-lg">
+          <div class="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
+            <svg class="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+        </div>
+        <h2 class="text-2xl font-bold text-white">Verifikasi Sertifikat</h2>
+        <p class="text-blue-200/70 mt-1 text-sm">Masukkan nomor sertifikat untuk verifikasi</p>
+      </div>
+
+      <!-- Messages -->
+      {% if messages %}
+      <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="px-4 py-3 rounded-lg text-sm font-medium backdrop-blur-md
+          {% if message.tags == 'success' %}bg-green-500/20 text-green-200 border border-green-400/30
+          {% elif message.tags == 'error' %}bg-red-500/20 text-red-200 border border-red-400/30
+          {% else %}bg-blue-500/20 text-blue-200 border border-blue-400/30{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Form -->
+      <form method="get" action="{% url 'certificates:verify_result' %}"
+            x-data="{ loading: false, number: '' }"
+            @submit="loading = true">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-blue-200 mb-2">Nomor Sertifikat</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <input type="text" name="number" x-model="number" autofocus required
+              class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-600/30 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200"
+              placeholder="Contoh: CRS/20240601/ABC123DEFG">
+          </div>
+          <p class="mt-2 text-xs text-blue-300/50">Masukkan nomor sertifikat yang tertera pada sertifikat</p>
+        </div>
+
+        <button type="submit"
+          :disabled="loading || !number"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+          <span x-show="!loading">Verifikasi</span>
+          <span x-show="loading" class="flex items-center space-x-2">
+            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span>Memverifikasi...</span>
+          </span>
+        </button>
+      </form>
+
+      <!-- Info -->
+      <div class="mt-6 text-center">
+        <p class="text-xs text-blue-300/40">
+          Sistem verifikasi sertifikat digital SPADA UMG
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

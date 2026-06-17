@@ -1,0 +1,112 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{% if is_create %}Tambah{% else %}Edit{% endif %} Pengaturan - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ settingType: '{{ form.setting_type.value|default:'text' }}', isPublic: {{ form.is_public.value|yesno:'true,false,true' }} }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'website_settings:settings_list' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">{% if is_create %}Tambah Pengaturan{% else %}Edit Pengaturan{% endif %}</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-3xl mx-auto w-full px-6 pb-12 mt-6">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 space-y-5">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-blue-200 mb-1.5">Key</label>
+            <input type="text" name="key" id="id_key" value="{{ form.key.value|default:'' }}" required
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm font-mono">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-blue-200 mb-1.5">Label</label>
+            <input type="text" name="label" id="id_label" value="{{ form.label.value|default:'' }}" required
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-blue-200 mb-1.5">Tipe</label>
+            <select name="setting_type" id="id_setting_type" x-model="settingType"
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm appearance-none cursor-pointer">
+              {% for type_val, type_label in form.setting_type.field.choices %}
+              <option value="{{ type_val }}" class="bg-gray-800" {% if form.setting_type.value == type_val %}selected{% endif %}>{{ type_label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-blue-200 mb-1.5">Grup</label>
+            <select name="group" id="id_group"
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm appearance-none cursor-pointer">
+              {% for group_val, group_label in form.group.field.choices %}
+              <option value="{{ group_val }}" class="bg-gray-800" {% if form.group.value == group_val %}selected{% endif %}>{{ group_label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1.5">Nilai</label>
+          <template x-if="settingType === 'textarea'">
+            <textarea name="value" id="id_value" rows="4" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">{{ form.value.value|default:'' }}</textarea>
+          </template>
+          <template x-if="settingType === 'color'">
+            <div class="flex items-center space-x-3">
+              <input type="color" name="value" id="id_value" value="{{ form.value.value|default:'#3B82F6' }}"
+                class="w-12 h-12 rounded-xl bg-white/10 border border-white/20 cursor-pointer">
+              <span class="text-blue-200/70 text-sm" x-text="$el.previousElementSibling.value || '#3B82F6'"></span>
+            </div>
+          </template>
+          <template x-if="settingType !== 'textarea' && settingType !== 'color'">
+            <input type="{% if settingType === 'email' %}email{% elif settingType === 'url' %}url{% elif settingType === 'phone' %}tel{% else %}text{% endif %}" name="value" id="id_value" value="{{ form.value.value|default:'' }}"
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+          </template>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-blue-200 mb-1.5">Urutan</label>
+            <input type="number" name="order" id="id_order" value="{{ form.order.value|default:0 }}"
+              class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+          </div>
+          <div class="flex items-center pt-6">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="is_public" id="id_is_public" x-model="isPublic" class="sr-only peer" {% if form.is_public.value %}checked{% endif %}>
+              <div class="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-600 peer-checked:to-purple-600"></div>
+              <span class="ms-3 text-sm font-medium text-blue-200" x-text="isPublic ? 'Publik (tersedia via API)' : 'Private'"></span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200 mb-1.5">Deskripsi</label>
+          <textarea name="description" id="id_description" rows="2" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">{{ form.description.value|default:'' }}</textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <a href="{% url 'website_settings:settings_list' %}" class="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all text-sm">Batal</a>
+        <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center space-x-2">
+          <i class="fas fa-{% if is_create %}plus{% else %}save{% endif %}"></i>
+          <span>{% if is_create %}Tambah{% else %}Simpan{% endif %}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

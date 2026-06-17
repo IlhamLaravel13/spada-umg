@@ -1,0 +1,4 @@
+<option value="" class="bg-gray-800">---------</option>
+{% for course in courses %}
+<option value="{{ course.id }}" class="bg-gray-800">{{ course.code }} - {{ course.name }}</option>
+{% endfor %}

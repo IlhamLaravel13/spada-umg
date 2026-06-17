@@ -1,0 +1,168 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Buat Laporan - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'reports:list' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Buat Laporan Baru</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-4xl mx-auto w-full px-6 mt-6 pb-12">
+    <form method="post" class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+      {% csrf_token %}
+
+      {% if messages %}
+      {% for message in messages %}
+      <div class="mb-4 p-4 rounded-xl {% if message.tags == 'error' %}bg-red-600/20 border border-red-400/30 text-red-200{% else %}bg-green-600/20 border border-green-400/30 text-green-200{% endif %} text-sm">
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Judul Laporan</label>
+          <input type="text" name="title" required maxlength="200" placeholder="Masukkan judul laporan" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Tipe Laporan</label>
+          <select name="report_type" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            {% for type_code, type_label in type_choices %}
+            <option value="{{ type_code }}" {% if report_type == type_code %}selected{% endif %}>{{ type_label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Format</label>
+          <select name="format" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            {% for fmt_code, fmt_label in format_choices %}
+            <option value="{{ fmt_code }}">{{ fmt_label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <hr class="border-white/10 my-2">
+          <p class="text-sm font-medium text-blue-200/80 mb-3">Filter Opsional</p>
+        </div>
+
+        {% if faculties %}
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Fakultas</label>
+          <select name="faculty_id" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="">Semua Fakultas</option>
+            {% for f in faculties %}
+            <option value="{{ f.id }}">{{ f.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        {% if study_programs %}
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Program Studi</label>
+          <select name="study_program_id" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="">Semua Program Studi</option>
+            {% for sp in study_programs %}
+            <option value="{{ sp.id }}">{{ sp.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        {% if academic_years %}
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Tahun Akademik</label>
+          <select name="academic_year_id" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="">Semua</option>
+            {% for ay in academic_years %}
+            <option value="{{ ay.id }}">{{ ay.year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        {% if semesters %}
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Semester</label>
+          <select name="semester_id" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="">Semua Semester</option>
+            {% for s in semesters %}
+            <option value="{{ s.id }}">{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        {% if courses %}
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Mata Kuliah</label>
+          <select name="course_id" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="">Semua Mata Kuliah</option>
+            {% for c in courses %}
+            <option value="{{ c.id }}">{{ c.code }} - {{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        {% if classes %}
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Kelas</label>
+          <select name="class_id" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+            <option value="">Semua Kelas</option>
+            {% for cls in classes %}
+            <option value="{{ cls.id }}">{{ cls }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Tanggal Mulai</label>
+          <input type="date" name="start_date" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-blue-200/80 mb-1">Tanggal Selesai</label>
+          <input type="date" name="end_date" class="w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-white/10">
+        <a href="{% url 'reports:list' %}" class="px-6 py-2.5 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-all text-sm">Batal</a>
+        <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 transition-all">
+          <i class="fas fa-file-export mr-2"></i>Generate Laporan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+  input, select {
+    @apply w-full px-4 py-2.5 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm;
+  }
+  select option {
+    @apply bg-gray-800 text-white;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+</style>
+{% endblock %}

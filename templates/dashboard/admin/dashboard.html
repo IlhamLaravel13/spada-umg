@@ -1,0 +1,253 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+{% block title %}Dashboard Admin - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6" x-data="adminDashboard()">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-display font-bold text-white drop-shadow-lg">
+                Dashboard Admin
+            </h1>
+            <p class="text-white/70 text-sm mt-1">Selamat datang, {{ user.get_full_name|default:user.username }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="window.location.href='{% url 'admin:analytics' %}'" class="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-xl text-sm font-medium transition-all duration-200 border border-white/20 flex items-center gap-2">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </button>
+            <button onclick="window.location.href='{% url 'admin:index' %}'" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-medium transition-all duration-200 shadow-lg shadow-primary-600/30 flex items-center gap-2">
+                <i class="fas fa-cog"></i> Admin Panel
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="group relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:bg-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Total Users</p>
+                    <p class="text-3xl font-bold text-white mt-1 font-display" x-text="stats.total_users"></p>
+                    <p class="text-white/40 text-xs mt-1">Seluruh pengguna terdaftar</p>
+                </div>
+                <div class="h-12 w-12 rounded-xl bg-blue-500/20 backdrop-blur-sm flex items-center justify-center text-blue-300 text-xl group-hover:scale-110 transition-transform">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+        <div class="group relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:bg-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Total Dosen</p>
+                    <p class="text-3xl font-bold text-white mt-1 font-display" x-text="stats.total_dosen"></p>
+                    <p class="text-white/40 text-xs mt-1">Tenaga pengajar</p>
+                </div>
+                <div class="h-12 w-12 rounded-xl bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center text-emerald-300 text-xl group-hover:scale-110 transition-transform">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            </div>
+        </div>
+        <div class="group relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:bg-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Total Mahasiswa</p>
+                    <p class="text-3xl font-bold text-white mt-1 font-display" x-text="stats.total_mahasiswa"></p>
+                    <p class="text-white/40 text-xs mt-1">Mahasiswa aktif</p>
+                </div>
+                <div class="h-12 w-12 rounded-xl bg-purple-500/20 backdrop-blur-sm flex items-center justify-center text-purple-300 text-xl group-hover:scale-110 transition-transform">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+        </div>
+        <div class="group relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-5 hover:bg-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white/60 text-xs font-medium uppercase tracking-wider">Total Courses</p>
+                    <p class="text-3xl font-bold text-white mt-1 font-display" x-text="stats.total_courses"></p>
+                    <p class="text-white/40 text-xs mt-1">Mata kuliah tersedia</p>
+                </div>
+                <div class="h-12 w-12 rounded-xl bg-amber-500/20 backdrop-blur-sm flex items-center justify-center text-amber-300 text-xl group-hover:scale-110 transition-transform">
+                    <i class="fas fa-book"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-white">Statistik Pengguna</h2>
+                <div class="flex items-center gap-2">
+                    <span class="text-white/50 text-xs">Berdasarkan peran</span>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <template x-for="(count, role) in stats.by_role" :key="role">
+                    <div>
+                        <div class="flex items-center justify-between text-sm mb-1.5">
+                            <span class="text-white/80 font-medium capitalize" x-text="role"></span>
+                            <span class="text-white/60 text-xs" x-text="count + ' pengguna'"></span>
+                        </div>
+                        <div class="h-2.5 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-1000"
+                                :style="'width: ' + (count / stats.total_users * 100) + '%'"
+                                :class="{
+                                    'bg-gradient-to-r from-blue-400 to-blue-600': role === 'superadmin' || role === 'admin',
+                                    'bg-gradient-to-r from-emerald-400 to-emerald-600': role === 'dosen',
+                                    'bg-gradient-to-r from-purple-400 to-purple-600': role === 'mahasiswa'
+                                }">
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="mt-6 grid grid-cols-3 gap-3">
+                <div class="bg-white/5 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-bold text-white font-display">{{ total_classes }}</p>
+                    <p class="text-white/50 text-xs mt-1">Total Kelas</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-bold text-white font-display">{{ enrollment_stats.active|default:0 }}</p>
+                    <p class="text-white/50 text-xs mt-1">Enrollment Aktif</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-bold text-white font-display">{{ enrollment_stats.completed|default:0 }}</p>
+                    <p class="text-white/50 text-xs mt-1">Enrollment Selesai</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <h2 class="text-lg font-semibold text-white mb-4">Aksi Cepat</h2>
+            <div class="space-y-3">
+                <a href="{% url 'admin:users' %}" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 group border border-transparent hover:border-primary-500/30">
+                    <div class="h-10 w-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-300 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-medium text-sm">Tambah User</p>
+                        <p class="text-white/50 text-xs">Kelola pengguna baru</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-white/30 group-hover:text-white/60 transition-colors"></i>
+                </a>
+                <a href="{% url 'admin:fakultas' %}" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 group border border-transparent hover:border-emerald-500/30">
+                    <div class="h-10 w-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-300 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-medium text-sm">Fakultas & Prodi</p>
+                        <p class="text-white/50 text-xs">Atur struktur akademik</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-white/30 group-hover:text-white/60 transition-colors"></i>
+                </a>
+                <a href="{% url 'admin:matakuliah' %}" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 group border border-transparent hover:border-purple-500/30">
+                    <div class="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-300 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-medium text-sm">Mata Kuliah</p>
+                        <p class="text-white/50 text-xs">Kelola kurikulum</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-white/30 group-hover:text-white/60 transition-colors"></i>
+                </a>
+                <a href="{% url 'admin:kelas' %}" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 group border border-transparent hover:border-amber-500/30">
+                    <div class="h-10 w-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-300 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-medium text-sm">Kelas</p>
+                        <p class="text-white/50 text-xs">Atur kelas perkuliahan</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-white/30 group-hover:text-white/60 transition-colors"></i>
+                </a>
+                <a href="{% url 'admin:semester' %}" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 group border border-transparent hover:border-rose-500/30">
+                    <div class="h-10 w-10 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-300 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-medium text-sm">Semester</p>
+                        <p class="text-white/50 text-xs">Atur tahun akademik</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-white/30 group-hover:text-white/60 transition-colors"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white">Pengguna Terbaru</h2>
+                <a href="{% url 'admin:users' %}" class="text-white/50 hover:text-white text-xs transition-colors">Lihat Semua</a>
+            </div>
+            <div class="space-y-3">
+                {% for u in recent_users %}
+                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
+                    <div class="h-9 w-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                        {{ u.get_full_name|default:u.username|first|upper }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-sm font-medium truncate">{{ u.get_full_name|default:u.username }}</p>
+                        <p class="text-white/50 text-xs truncate">{{ u.email }}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider
+                        {% if u.role == 'admin' or u.role == 'superadmin' %}bg-blue-500/20 text-blue-300
+                        {% elif u.role == 'dosen' %}bg-emerald-500/20 text-emerald-300
+                        {% else %}bg-purple-500/20 text-purple-300{% endif %}">
+                        {{ u.get_role_display }}
+                    </span>
+                </div>
+                {% empty %}
+                <p class="text-white/40 text-sm text-center py-4">Belum ada pengguna terdaftar</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white">Aktivitas Terbaru</h2>
+            </div>
+            <div class="space-y-3" id="recent-activities"
+                hx-get="{% url 'analytics:recent_activities' %}"
+                hx-trigger="load delay:1s, every:30s"
+                hx-ext="loading-states">
+                {% for activity in recent_activities %}
+                <div class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
+                    <div class="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 text-xs flex-shrink-0 mt-0.5">
+                        <i class="fas fa-circle text-[6px] text-primary-400"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white text-sm">
+                            <span class="font-medium">{{ activity.user.get_full_name|default:activity.user.username }}</span>
+                            <span class="text-white/60">{{ activity.action }}</span>
+                        </p>
+                        <p class="text-white/40 text-xs mt-0.5">{{ activity.created_at|timesince }} yang lalu</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-white/40 text-sm text-center py-4">Belum ada aktivitas</p>
+                {% endfor %}
+                <div class="htmx-indicator text-center py-2">
+                    <i class="fas fa-spinner fa-spin text-white/50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function adminDashboard() {
+        return {
+            stats: {
+                total_users: {{ total_users|default:0 }},
+                total_dosen: {{ total_dosen|default:0 }},
+                total_mahasiswa: {{ total_mahasiswa|default:0 }},
+                total_courses: {{ total_courses|default:0 }},
+                by_role: {{ stats_by_role|default:'{}'|safe }}
+            }
+        }
+    }
+</script>
+{% endblock %}

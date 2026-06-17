@@ -1,0 +1,116 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ class_obj.code }} - {{ class_obj.name }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen" x-data="{ activeTab: 'students' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <a href="{% url 'academics:class_list' %}" class="text-blue-300/70 hover:text-white transition-colors text-sm mb-3 inline-block"><i class="fas fa-arrow-left mr-2"></i>Back to Classes</a>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center space-x-3 mb-1">
+            <span class="font-mono text-lg font-bold text-blue-300">{{ class_obj.code }}</span>
+            <span class="px-2 py-0.5 rounded text-xs font-medium bg-purple-500/20 text-purple-200">{{ class_obj.get_class_type_display }}</span>
+            {% if class_obj.is_active %}<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-400/30">Active</span>{% endif %}
+          </div>
+          <h1 class="text-2xl font-bold text-white">{{ class_obj.course.name }} - {{ class_obj.name }}</h1>
+          <p class="text-blue-200/70 text-sm">{{ class_obj.semester }}</p>
+        </div>
+        <div class="flex space-x-2">
+          <a href="{% url 'academics:class_update' class_obj.pk %}" class="px-4 py-2 rounded-xl bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 font-medium text-sm border border-yellow-400/30"><i class="fas fa-pen mr-2"></i>Edit</a>
+          <a href="{% url 'academics:enrollment_create' %}?class={{ class_obj.pk }}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25"><i class="fas fa-user-plus mr-2"></i>Enroll</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-6 py-6">
+    <div class="flex space-x-1 mb-6 backdrop-blur-xl bg-white/5 dark:bg-gray-900/20 rounded-xl p-1 border border-white/10 w-fit">
+      <button @click="activeTab = 'students'" :class="{ 'bg-white/20 text-white': activeTab === 'students', 'text-blue-200/70 hover:text-white': activeTab !== 'students' }" class="px-4 py-2 rounded-lg text-sm font-medium transition-all">Students ({{ enrolled_count }})</button>
+      <button @click="activeTab = 'info'" :class="{ 'bg-white/20 text-white': activeTab === 'info', 'text-blue-200/70 hover:text-white': activeTab !== 'info' }" class="px-4 py-2 rounded-lg text-sm font-medium transition-all">Info</button>
+    </div>
+
+    <div x-show="activeTab === 'students'">
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-white/10">
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">NIM</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Student</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Status</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Enrolled</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Grade</th>
+                <th class="text-left px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Letter</th>
+                <th class="text-right px-6 py-4 text-blue-200/70 text-xs font-semibold uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              {% for enrollment in enrollments %}
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4 font-mono text-sm text-blue-300">{{ enrollment.student.nim|default:'-' }}</td>
+                <td class="px-6 py-4 text-white font-medium">{{ enrollment.student.get_full_name|default:enrollment.student.username }}</td>
+                <td class="px-6 py-4">
+                  {% if enrollment.status == 'active' %}<span class="text-green-300 text-sm">Active</span>{% elif enrollment.status == 'completed' %}<span class="text-blue-300 text-sm">Completed</span>{% elif enrollment.status == 'dropped' %}<span class="text-red-300 text-sm">Dropped</span>{% else %}<span class="text-gray-400 text-sm">Failed</span>{% endif %}
+                </td>
+                <td class="px-6 py-4 text-blue-200/70 text-sm">{{ enrollment.enrollment_date|date:'d M Y' }}</td>
+                <td class="px-6 py-4 text-white font-semibold">{{ enrollment.grade_final|default:'-' }}</td>
+                <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold bg-indigo-500/20 text-indigo-200">{{ enrollment.grade_letter|default:'-' }}</span></td>
+                <td class="px-6 py-4 text-right">
+                  <a href="{% url 'academics:enrollment_update' enrollment.pk %}" class="p-2 rounded-lg hover:bg-white/10 text-yellow-300 transition-all" title="Edit Grade"><i class="fas fa-pen"></i></a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="px-6 py-12 text-center text-blue-200/50"><i class="fas fa-users text-4xl mb-3"></i><p>No students enrolled yet.</p><a href="{% url 'academics:enrollment_create' %}?class={{ class_obj.pk }}" class="inline-block mt-3 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold">Enroll Students</a></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div x-show="activeTab === 'info'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Class Details</h3>
+        <div class="space-y-3">
+          <div class="flex justify-between"><span class="text-blue-200/70">Course</span><span class="text-white font-medium">{{ class_obj.course.code }} - {{ class_obj.course.name }}</span></div>
+          <div class="flex justify-between"><span class="text-blue-200/70">Semester</span><span class="text-white font-medium">{{ class_obj.semester }}</span></div>
+          <div class="flex justify-between"><span class="text-blue-200/70">Type</span><span class="text-white font-medium">{{ class_obj.get_class_type_display }}</span></div>
+          <div class="flex justify-between"><span class="text-blue-200/70">Room</span><span class="text-white font-medium">{{ class_obj.room|default:'-' }}</span></div>
+          <div class="flex justify-between"><span class="text-blue-200/70">Schedule</span><span class="text-white font-medium">{{ class_obj.schedule|default:'-' }}</span></div>
+          <div class="flex justify-between"><span class="text-blue-200/70">Capacity</span><span class="text-white font-medium">{{ enrolled_count }}/{{ class_obj.max_students }}</span></div>
+        </div>
+      </div>
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Personnel</h3>
+        <div class="space-y-3">
+          <div class="flex justify-between"><span class="text-blue-200/70">Lecturer</span><span class="text-white font-medium">{{ class_obj.lecturer|default:'Not assigned' }}</span></div>
+          <div class="flex justify-between"><span class="text-blue-200/70">Co-Lecturer</span><span class="text-white font-medium">{{ class_obj.co_lecturer|default:'Not assigned' }}</span></div>
+        </div>
+        {% if class_obj.meeting_link %}
+        <div class="mt-4">
+          <a href="{{ class_obj.meeting_link }}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 text-sm border border-blue-400/30 transition-all">
+            <i class="fas fa-video"></i><span>Meeting Link</span>
+          </a>
+        </div>
+        {% endif %}
+        {% if class_obj.description %}
+        <div class="mt-4 pt-4 border-t border-white/10">
+          <h4 class="text-sm font-medium text-blue-200 mb-2">Description</h4>
+          <p class="text-blue-200/70 text-sm">{{ class_obj.description }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

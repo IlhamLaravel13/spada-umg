@@ -1,0 +1,35 @@
+{% for attendance in attendances %}
+<tr class="border-b border-white/5 hover:bg-white/5 transition-colors" id="attendance-row-{{ attendance.pk }}">
+  <td class="px-6 py-4 text-sm text-white">{{ forloop.counter }}</td>
+  <td class="px-6 py-4 text-sm text-blue-200/70">{{ attendance.student.nim|default:'-' }}</td>
+  <td class="px-6 py-4 text-sm text-white font-medium">{{ attendance.student.get_full_name|default:attendance.student.username }}</td>
+  <td class="px-6 py-4">
+    <span class="px-2 py-1 rounded-full text-xs font-medium 
+      {% if attendance.status == 'present' %}bg-green-500/20 text-green-300 border border-green-400/30
+      {% elif attendance.status == 'late' %}bg-yellow-500/20 text-yellow-300 border border-yellow-400/30
+      {% elif attendance.status == 'sick' %}bg-blue-500/20 text-blue-300 border border-blue-400/30
+      {% elif attendance.status == 'excused' %}bg-purple-500/20 text-purple-300 border border-purple-400/30
+      {% else %}bg-red-500/20 text-red-300 border border-red-400/30{% endif %}">
+      {{ attendance.get_status_display }}
+    </span>
+  </td>
+  <td class="px-6 py-4 text-sm text-blue-200/70">{{ attendance.check_in_time|date:'H:i' }}</td>
+  <td class="px-6 py-4">
+    {% if user.is_dosen or user.is_admin %}
+    <select hx-post="{% url 'attendance:update_attendance_status' attendance.pk %}" hx-trigger="change" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' name="status"
+      class="text-xs px-2 py-1 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+      {% for val, label in attendance.STATUS_CHOICES %}
+      <option value="{{ val }}" class="bg-gray-800" {% if attendance.status == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
+  </td>
+</tr>
+{% empty %}
+<tr>
+  <td colspan="6" class="px-6 py-12 text-center text-blue-200/50">
+    <i class="fas fa-user-clock text-3xl mb-2"></i>
+    <p>Belum ada absensi</p>
+  </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,11 @@
+<span id="unread-badge"
+      hx-get="{% url 'messaging:unread_count' %}"
+      hx-trigger="every:10s"
+      hx-target="#unread-badge"
+      hx-swap="outerHTML">
+  {% if unread_count > 0 %}
+  <span class="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full border-2 border-white/20 shadow-lg">
+    {% if unread_count > 99 %}99+{% else %}{{ unread_count }}{% endif %}
+  </span>
+  {% endif %}
+</span>

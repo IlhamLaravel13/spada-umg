@@ -1,0 +1,100 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Statistik Dosen - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Statistik Dosen</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 pb-12 mt-6">
+    {% if class_stats %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {% for stat in class_stats %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 overflow-hidden hover:border-white/30 transition-all">
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h3 class="text-white font-bold">{{ stat.course_name }}</h3>
+              <p class="text-blue-200/60 text-sm">{{ stat.class_name }} ({{ stat.code }})</p>
+            </div>
+            <div class="flex items-center space-x-1">
+              <span class="px-2 py-1 rounded-lg bg-blue-500/20 text-blue-200 text-xs font-medium">{{ stat.student_count }} mahasiswa</span>
+            </div>
+          </div>
+
+          <!-- Stat Cards Row -->
+          <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="p-3 rounded-xl bg-white/5 text-center">
+              <p class="text-2xl font-bold text-white">{{ stat.attendance_rate }}%</p>
+              <p class="text-xs text-blue-200/50 mt-1">Kehadiran</p>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 text-center">
+              <p class="text-2xl font-bold text-white">{{ stat.grade_average }}</p>
+              <p class="text-xs text-blue-200/50 mt-1">Rata-rata</p>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 text-center">
+              <p class="text-2xl font-bold text-white">{{ stat.submission_rate }}%</p>
+              <p class="text-xs text-blue-200/50 mt-1">Dinilai</p>
+            </div>
+          </div>
+
+          <!-- Attendance Rate Bar -->
+          <div class="mb-3">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-blue-200/60">Attendance Rate</span>
+              <span class="text-white">{{ stat.attendance_rate }}%</span>
+            </div>
+            <div class="h-2.5 rounded-full bg-white/5 overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400" style="width: {{ stat.attendance_rate }}%"></div>
+            </div>
+          </div>
+
+          <!-- Grade Bar -->
+          <div class="mb-3">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-blue-200/60">Grade Average</span>
+              <span class="text-white">{{ stat.grade_average }}</span>
+            </div>
+            <div class="h-2.5 rounded-full bg-white/5 overflow-hidden">
+              {% widthratio stat.grade_average 100 100 as grade_pct %}
+              <div class="h-full rounded-full bg-gradient-to-r from-purple-500 to-purple-400" style="width: {{ grade_pct }}%"></div>
+            </div>
+          </div>
+
+          <!-- Sessions Info -->
+          <div class="flex items-center justify-between text-xs text-blue-200/50 mt-4 pt-4 border-t border-white/10">
+            <span><i class="fas fa-calendar mr-1"></i>{{ stat.total_sessions }} sesi</span>
+            <span><i class="fas fa-user-graduate mr-1"></i>{{ stat.student_count }} mahasiswa</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+        <i class="fas fa-chart-bar text-gray-500 text-3xl"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-white mb-2">Belum Ada Data</h3>
+      <p class="text-blue-200/60">Anda belum memiliki kelas atau data statistik belum tersedia.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

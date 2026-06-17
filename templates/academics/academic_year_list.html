@@ -1,0 +1,102 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Academic Years - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col" x-data="{ search: '{{ request.GET.q|default:'' }}' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <nav class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'dashboard:redirect' %}" class="text-white/70 hover:text-white transition-colors"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="text-xl font-bold text-white">Academic Years</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <div class="relative">
+          <input type="text" x-model="search" @input.debounce="window.location.href = search ? '?q=' + search : '?'"
+            class="w-64 pl-10 pr-4 py-2 rounded-xl bg-white/10 dark:bg-gray-800/50 border border-white/20 text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="Search years...">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-sm"></i>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'academics:academic_year_create' %}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 flex items-center space-x-2">
+          <i class="fas fa-plus"></i><span>Add Year</span>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative max-w-7xl mx-auto w-full px-6 mt-6 pb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for ay in academic_years %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6 hover:bg-white/[0.15] transition-all duration-300" x-data="{ open: false }">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-white">{{ ay.year }}</h3>
+          <div class="flex space-x-1">
+            <a href="{% url 'academics:academic_year_update' ay.pk %}" class="p-2 rounded-lg hover:bg-white/10 text-yellow-300 transition-all"><i class="fas fa-pen"></i></a>
+            <button @click="open = true" class="p-2 rounded-lg hover:bg-white/10 text-red-300 transition-all"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-blue-200/70">Start</span>
+            <span class="text-white">{{ ay.start_date|date:'d M Y' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-blue-200/70">End</span>
+            <span class="text-white">{{ ay.end_date|date:'d M Y' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-blue-200/70">Semesters</span>
+            <span class="text-white">{{ ay.semesters.count }}</span>
+          </div>
+          <div class="flex justify-between items-center pt-2">
+            <span class="text-blue-200/70">Status</span>
+            {% if ay.is_active %}
+            <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-400/30">Active</span>
+            {% else %}
+            <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-gray-300 border border-gray-400/30">Inactive</span>
+            {% endif %}
+          </div>
+          {% if ay.is_even_semester %}
+          <div class="mt-2">
+            <span class="px-2 py-1 rounded text-xs font-medium bg-purple-500/20 text-purple-200">Even Semester</span>
+          </div>
+          {% endif %}
+        </div>
+        {% if ay.description %}
+        <p class="mt-3 text-blue-200/50 text-xs">{{ ay.description|truncatewords:20 }}</p>
+        {% endif %}
+        <div x-show="open" class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="open = false"></div>
+          <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/50 rounded-2xl border border-white/20 p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+              <h3 class="text-xl font-bold text-white mb-2">Delete Academic Year?</h3>
+              <p class="text-blue-200/70 text-sm mb-6">Delete <span class="text-white font-semibold">{{ ay.year }}</span>?</p>
+              <div class="flex space-x-3 justify-center">
+                <button @click="open = false" class="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm">Cancel</button>
+                <form method="post" action="{% url 'academics:academic_year_delete' ay.pk %}">{% csrf_token %}
+                  <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white text-sm shadow-lg shadow-red-500/25"><i class="fas fa-trash mr-2"></i>Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-full text-center py-12 text-blue-200/50">
+        <i class="fas fa-calendar text-4xl mb-3"></i>
+        <p>No academic years found.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

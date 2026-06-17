@@ -1,0 +1,196 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}Pencarian: {{ query }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen relative overflow-hidden">
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative max-w-5xl mx-auto px-4 py-12">
+    <!-- Search Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Pencarian</h1>
+      <p class="text-blue-200/70">Temukan informasi di SPADA UMG</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="max-w-2xl mx-auto mb-12">
+      <form action="{% url 'core:search' %}" method="get" class="relative">
+        <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 dark:border-gray-700/30 p-2 flex items-center">
+          <div class="pl-4 pr-2">
+            <svg class="w-6 h-6 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <input type="text" name="q" value="{{ query }}" placeholder="Cari mata kuliah, materi, pengumuman..." autofocus
+            class="flex-1 bg-transparent text-white placeholder-blue-200/40 focus:outline-none px-4 py-3 text-lg">
+          <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold shadow-lg transition-all duration-200">
+            Cari
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results -->
+    {% if query %}
+    <div class="mb-6">
+      <p class="text-blue-200/70">
+        Hasil pencarian untuk "<strong class="text-white">{{ query }}</strong>"
+        {% if total_results %}
+        — <span class="text-blue-300 font-semibold">{{ total_results }} hasil ditemukan</span>
+        {% endif %}
+      </p>
+    </div>
+
+    {% if total_results == 0 %}
+    <div class="text-center py-16">
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-white/10 flex items-center justify-center">
+        <svg class="w-12 h-12 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-white mb-2">Tidak Ada Hasil</h3>
+      <p class="text-blue-200/60">Tidak ditemukan hasil untuk pencarian "{{ query }}". Coba gunakan kata kunci lain.</p>
+    </div>
+    {% endif %}
+
+    <!-- Results Sections -->
+    <div class="space-y-8">
+      {% if search_results.users %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 dark:border-gray-700/30 p-6">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+          </svg>
+          Pengguna ({{ search_results.users|length }})
+        </h2>
+        <div class="grid gap-3">
+          {% for user in search_results.users %}
+          <a href="{{ user.url }}" class="flex items-center p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              {{ user.name|first|upper }}
+            </div>
+            <div class="ml-3 flex-1 min-w-0">
+              <p class="text-white font-medium truncate group-hover:text-blue-300 transition-colors">{{ user.name }}</p>
+              <p class="text-blue-200/50 text-sm truncate">{{ user.email }} · {{ user.role }}</p>
+            </div>
+            <svg class="w-4 h-4 text-blue-300/30 group-hover:text-blue-300 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if search_results.courses %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 dark:border-gray-700/30 p-6">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          Mata Kuliah ({{ search_results.courses|length }})
+        </h2>
+        <div class="grid gap-3">
+          {% for course in search_results.courses %}
+          <a href="{{ course.url }}" class="block p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
+            <div class="flex items-start justify-between">
+              <div class="min-w-0 flex-1">
+                <p class="text-white font-medium group-hover:text-blue-300 transition-colors">{{ course.code }} - {{ course.name }}</p>
+                {% if course.description %}
+                <p class="text-blue-200/50 text-sm mt-1 line-clamp-2">{{ course.description }}</p>
+                {% endif %}
+              </div>
+              <svg class="w-4 h-4 text-blue-300/30 group-hover:text-blue-300 transition-colors flex-shrink-0 mt-1 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if search_results.materials %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 dark:border-gray-700/30 p-6">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          Materi ({{ search_results.materials|length }})
+        </h2>
+        <div class="grid gap-3">
+          {% for material in search_results.materials %}
+          <a href="{{ material.url }}" class="block p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
+            <div class="flex items-start justify-between">
+              <div class="min-w-0 flex-1">
+                <p class="text-white font-medium group-hover:text-blue-300 transition-colors">{{ material.title }}</p>
+                {% if material.course %}
+                <p class="text-blue-200/50 text-xs">{{ material.course }}</p>
+                {% endif %}
+                {% if material.description %}
+                <p class="text-blue-200/50 text-sm mt-1 line-clamp-2">{{ material.description }}</p>
+                {% endif %}
+              </div>
+              <svg class="w-4 h-4 text-blue-300/30 group-hover:text-blue-300 transition-colors flex-shrink-0 mt-1 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if search_results.announcements %}
+      <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 dark:border-gray-700/30 p-6">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+          </svg>
+          Pengumuman ({{ search_results.announcements|length }})
+        </h2>
+        <div class="grid gap-3">
+          {% for announcement in search_results.announcements %}
+          <a href="{{ announcement.url }}" class="block p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
+            <div class="flex items-start justify-between">
+              <div class="min-w-0 flex-1">
+                <p class="text-white font-medium group-hover:text-blue-300 transition-colors">{{ announcement.title }}</p>
+                {% if announcement.created_at %}
+                <p class="text-blue-200/50 text-xs mt-1">{{ announcement.created_at|date:"d F Y" }}</p>
+                {% endif %}
+                {% if announcement.content %}
+                <p class="text-blue-200/50 text-sm mt-1 line-clamp-2">{{ announcement.content|striptags }}</p>
+                {% endif %}
+              </div>
+              <svg class="w-4 h-4 text-blue-300/30 group-hover:text-blue-300 transition-colors flex-shrink-0 mt-1 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-16">
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-white/10 flex items-center justify-center">
+        <svg class="w-12 h-12 text-blue-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-white mb-2">Cari di SPADA UMG</h3>
+      <p class="text-blue-200/60">Masukkan kata kunci untuk mencari mata kuliah, materi, pengumuman, dan lainnya.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

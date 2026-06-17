@@ -1,0 +1,49 @@
+# SPADA UMG - Docker ignore
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.env
+.venv/
+venv/
+env/
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Static
+staticfiles/
+static_root/
+
+# Media
+media/uploads/
+media/certificates/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/*.log
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/

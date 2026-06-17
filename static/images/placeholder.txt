@@ -1,0 +1,27 @@
+====================================
+ SPADA UMG LMS - Static Images
+====================================
+
+Place your static image files in this directory.
+
+Recommended images:
+  - campus-bg.jpg       (1920x1080, background image for base template)
+  - logo.png            (site logo, used in navbar and footer)
+  - favicon.ico         (browser tab icon)
+  - default-avatar.png  (default user avatar)
+  - hero-bg.jpg         (hero section background)
+  - logo-light.png      (light mode logo variant)
+  - logo-dark.png       (dark mode logo variant)
+  - og-image.jpg        (Open Graph preview image, 1200x630)
+
+Notes:
+  - All images should be optimized for web (compressed, appropriate dimensions)
+  - Use WebP format where possible for better performance
+  - Provide fallback JPG/PNG for older browsers
+  - Background image should be dark-mode friendly or use CSS overlay
+
+For development, you can download sample images from:
+  https://unsplash.com/photos/college-campus
+  https://unsplash.com/photos/university-building
+
+Last updated: {% now 'Y-m-d' %}

@@ -1,0 +1,132 @@
+{% extends 'spada_umg/base.html' %}
+{% load static %}
+
+{% block title %}{{ class_obj.course.name }} - SPADA UMG{% endblock %}
+
+{% block body_class %}bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 min-h-screen{% endblock %}
+
+{% block content %}
+<div class="min-h-screen" x-data="{ activeTab: 'materials' }">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+
+  <div class="relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <a href="{% url 'courses:course_list' %}" class="text-blue-300/70 hover:text-white transition-colors text-sm mb-3 inline-block"><i class="fas fa-arrow-left mr-2"></i>Kembali</a>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center space-x-3 mb-1">
+            <span class="font-mono text-lg font-bold text-blue-300">{{ class_obj.course.code }}</span>
+            <span class="px-2 py-0.5 rounded text-xs font-medium bg-purple-500/20 text-purple-200">{{ class_obj.name }}</span>
+          </div>
+          <h1 class="text-2xl font-bold text-white">{{ class_obj.course.name }}</h1>
+          <p class="text-blue-200/70 text-sm">{{ class_obj.semester }}</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          {% if progress.total > 0 %}
+          <div class="text-right">
+            <div class="text-sm text-blue-200/70">Progress</div>
+            <div class="text-lg font-bold text-white">{{ progress.percentage }}%</div>
+          </div>
+          {% endif %}
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center border-2 border-blue-400/30" style="background: conic-gradient(from 0deg, rgba(59,130,246,0.5) {{ progress.percentage }}%, rgba(255,255,255,0.05) {{ progress.percentage }}%);">
+            <span class="text-sm font-bold text-white">{{ progress.completed }}/{{ progress.total }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-6 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div class="lg:col-span-1 space-y-4">
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <h3 class="text-sm font-semibold text-blue-200 uppercase mb-4">Info Course</h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between"><span class="text-blue-200/60">Kode</span><span class="text-white font-mono">{{ class_obj.course.code }}</span></div>
+            <div class="flex justify-between"><span class="text-blue-200/60">Kelas</span><span class="text-white">{{ class_obj.name }}</span></div>
+            <div class="flex justify-between"><span class="text-blue-200/60">SKS</span><span class="text-white">{{ class_obj.course.credits }}</span></div>
+            <div class="flex justify-between"><span class="text-blue-200/60">Semester</span><span class="text-white">{{ class_obj.semester.name }}</span></div>
+            <div class="flex justify-between"><span class="text-blue-200/60">Dosen</span><span class="text-white">{{ class_obj.lecturer.get_full_name|default:class_obj.lecturer.username|default:'-' }}</span></div>
+          </div>
+        </div>
+
+        {% if progress.total > 0 %}
+        <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+          <h3 class="text-sm font-semibold text-blue-200 uppercase mb-4">Progress</h3>
+          <div class="w-full bg-white/10 rounded-full h-2 mb-2">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500" style="width: {{ progress.percentage }}%"></div>
+          </div>
+          <p class="text-xs text-blue-200/60">{{ progress.completed }} dari {{ progress.total }} materi selesai</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="lg:col-span-3">
+        <div class="flex space-x-1 mb-6 backdrop-blur-xl bg-white/5 dark:bg-gray-900/20 rounded-xl p-1 border border-white/10 w-fit">
+          <button @click="activeTab = 'materials'" :class="{ 'bg-white/20 text-white': activeTab === 'materials', 'text-blue-200/70 hover:text-white': activeTab !== 'materials' }" class="px-4 py-2 rounded-lg text-sm font-medium transition-all"><i class="fas fa-file-alt mr-2"></i>Materi</button>
+          <button @click="activeTab = 'info'" :class="{ 'bg-white/20 text-white': activeTab === 'info', 'text-blue-200/70 hover:text-white': activeTab !== 'info' }" class="px-4 py-2 rounded-lg text-sm font-medium transition-all"><i class="fas fa-info-circle mr-2"></i>Info</button>
+        </div>
+
+        <div x-show="activeTab === 'materials'">
+          {% if is_enrolled %}
+            {% if materials %}
+            <div class="space-y-3" id="materialList">
+              {% for material in materials %}
+              <div class="group backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-xl border border-white/20 p-4 hover:bg-white/20 dark:hover:bg-gray-900/50 transition-all">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br {% if material.file_type == 'pdf' %}from-red-500 to-red-600{% elif material.file_type == 'video' %}from-purple-500 to-pink-600{% elif material.file_type == 'link' %}from-green-500 to-teal-600{% else %}from-blue-500 to-cyan-600{% endif %} flex items-center justify-center text-white shadow-lg">
+                      <i class="fas {% if material.file_type == 'pdf' %}fa-file-pdf{% elif material.file_type == 'docx' %}fa-file-word{% elif material.file_type == 'pptx' %}fa-file-powerpoint{% elif material.file_type == 'xlsx' %}fa-file-excel{% elif material.file_type == 'video' %}fa-file-video{% elif material.file_type == 'audio' %}fa-file-audio{% elif material.file_type == 'image' %}fa-file-image{% elif material.file_type == 'archive' %}fa-file-archive{% elif material.file_type == 'link' %}fa-link{% else %}fa-file{% endif %}"></i>
+                    </div>
+                    <div>
+                      <a href="{% url 'courses:material_detail' material.pk %}" class="text-white font-medium hover:text-blue-300 transition-colors">{{ material.title }}</a>
+                      <p class="text-blue-200/50 text-xs mt-0.5">{{ material.description|truncatewords:20 }}</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    {% if material.id in completed_materials %}
+                    <span class="text-green-400"><i class="fas fa-check-circle"></i></span>
+                    {% endif %}
+                    <a href="{% url 'courses:material_detail' material.pk %}" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 text-xs transition-all"><i class="fas fa-eye mr-1"></i>Lihat</a>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center"><i class="fas fa-file-alt text-2xl text-blue-300/50"></i></div>
+              <p class="text-blue-200/60">Belum ada materi untuk course ini.</p>
+            </div>
+            {% endif %}
+          {% else %}
+          <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-12 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-500/10 flex items-center justify-center"><i class="fas fa-lock text-2xl text-yellow-300/50"></i></div>
+            <h3 class="text-lg font-semibold text-white mb-2">Akses Terbatas</h3>
+            <p class="text-blue-200/60">Anda belum terdaftar di course ini.</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div x-show="activeTab === 'info'">
+          <div class="backdrop-blur-xl bg-white/10 dark:bg-gray-900/30 rounded-2xl border border-white/20 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Deskripsi Course</h3>
+            <p class="text-blue-200/70">{{ class_obj.course.description|default:'Tidak ada deskripsi' }}</p>
+            {% if class_obj.description %}
+            <h4 class="text-sm font-medium text-blue-200 mt-4 mb-2">Catatan Kelas</h4>
+            <p class="text-blue-200/70 text-sm">{{ class_obj.description }}</p>
+            {% endif %}
+            <div class="mt-6 grid grid-cols-2 gap-4">
+              <div class="p-3 rounded-xl bg-white/5"><span class="text-blue-200/60 text-xs block">Ruangan</span><span class="text-white text-sm font-medium">{{ class_obj.room|default:'-' }}</span></div>
+              <div class="p-3 rounded-xl bg-white/5"><span class="text-blue-200/60 text-xs block">Jadwal</span><span class="text-white text-sm font-medium">{{ class_obj.schedule|default:'-' }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
