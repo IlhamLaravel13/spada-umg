@@ -2,7 +2,6 @@
   "buildCommand": "bash build_files.sh",
   "outputDirectory": ".",
   "framework": null,
-  "functionsBeta": true,
   "rewrites": [
     {
       "source": "/(.*)",
