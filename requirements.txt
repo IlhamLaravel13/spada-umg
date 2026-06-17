@@ -1,60 +1,22 @@
-# SPADA UMG - Production Requirements
-# Django & Core
-Django==5.1.4
-djangorestframework==3.15.2
-django-cors-headers==4.6.0
-django-filter==24.3
-# django-allauth==64.2.1
-# django-ckeditor==6.7.2
-# django-jazzmin==3.0.1
-
-# Authentication
-PyJWT==2.10.1
-djangorestframework-simplejwt==5.4.0
-django-otp==1.5.4
-qrcode==7.4.2
-
-# Database
-psycopg2-binary==2.9.10
-
-# Storage
-# cloudinary==1.41.0
-# django-cloudinary-storage==0.3.0
-# supabase-py==2.9.0
-
-# Payment
-midtransclient==1.5.0
-xendit-python==4.1.1
-
-# PDF & Certificate
-reportlab==4.2.5
-weasyprint==62.3
-qrcode[pil]==7.4.2
-Pillow==11.1.0
-
-# AI
-openai==1.55.0
-google-generativeai==0.8.3
-
-# Utility
-python-dotenv==1.0.1
-whitenoise==6.8.2
-gunicorn==23.0.0
-psutil==6.1.0
-python-dateutil==2.9.0
-pytz==2024.2
-django-taggit==6.1.0
-django-import-export==4.3.0
-# django-admin-interface==0.28.11
-
-# Testing
-pytest==8.3.4
-pytest-django==4.9.0
-pytest-cov==6.0.0
-factory-boy==3.3.1
-model-bakery==1.19.0
-
-# Production
-uvicorn==0.34.0
-asgiref==3.8.1
-python-multipart==0.0.19
+Django>=5.1,<5.2
+djangorestframework>=3.15,<3.16
+django-cors-headers>=4.6,<4.7
+django-filter>=24.3,<25
+PyJWT>=2.10,<3
+djangorestframework-simplejwt>=5.4,<6
+psycopg2-binary>=2.9,<3
+Pillow>=11.1,<12
+python-dotenv>=1.0,<2
+whitenoise>=6.8,<7
+gunicorn>=23.0,<24
+django-taggit>=6.1,<7
+django-import-export>=4.3,<5
+openai>=1.55,<2
+google-generativeai>=0.8,<1
+pytz>=2024.2,<2025
+python-dateutil>=2.9,<3
+asgiref>=3.8,<4
+python-multipart>=0.0.19,<1
+psutil>=6.1,<7
+qrcode>=7.4,<8
+qrcode[pil]>=7.4,<8
