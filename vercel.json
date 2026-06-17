@@ -1,5 +1,5 @@
 {
-  "buildCommand": "python build_files.sh",
+  "buildCommand": "bash build_files.sh",
   "outputDirectory": ".",
   "framework": null,
   "rewrites": [
