@@ -1,16 +1,7 @@
 {
   "buildCommand": "python build_files.sh",
   "outputDirectory": ".",
-  "devCommand": "python manage.py runserver",
-  "installCommand": "pip install -r requirements.txt",
   "framework": null,
-  "functions": {
-    "api/**/*.py": {
-      "runtime": "python3.13",
-      "memory": 512,
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
