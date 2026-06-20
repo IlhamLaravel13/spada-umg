@@ -1,12 +1,20 @@
 import os
 import sys
-from django.core.wsgi import get_wsgi_application
+import traceback
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'spada_umg.settings')
-
 os.environ['VERCEL'] = 'true'
 
-application = get_wsgi_application()
+try:
+    from django.core.wsgi import get_wsgi_application
+    application = get_wsgi_application()
+except Exception:
+    error_trace = traceback.format_exc()
+
+    def application(environ, start_response):
+        start_response('500 Internal Server Error', [('Content-Type', 'text/plain')]
+)
+        return [f'Django init failed:\n\n{error_trace}'.encode()]
 
 
 def handler(request):
