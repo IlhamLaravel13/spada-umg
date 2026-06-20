@@ -1,5 +1,5 @@
 import os
-import magic
+import mimetypes
 from django.conf import settings
 from django.db import transaction
 from .repositories import MaterialRepository, MaterialCommentRepository, CourseProgressRepository
@@ -138,7 +138,9 @@ class MaterialService:
     def _detect_file_type(self, uploaded_file) -> str:
         try:
             uploaded_file.seek(0)
-            mime_type = magic.from_buffer(uploaded_file.read(2048), mime=True)
+            mime_type, _ = mimetypes.guess_type(uploaded_file.name)
+            if not mime_type:
+                mime_type = 'application/octet-stream'
             uploaded_file.seek(0)
             return MATERIAL_TYPE_MAP.get(mime_type, 'other')
         except Exception:
