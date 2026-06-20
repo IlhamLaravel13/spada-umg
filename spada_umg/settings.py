@@ -8,8 +8,8 @@ warnings.filterwarnings('ignore')
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings
-SECRET_KEY = 'django-insecure-dev-key-spada-umg-2024'
-DEBUG = True
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-key-spada-umg-2024')
+DEBUG = os.environ.get('VERCEL') != 'true'
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 # Application definition
@@ -85,10 +85,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'spada_umg.wsgi.application'
 
 # Database
+import os as _os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': _os.environ.get('VERCEL') and '/tmp/db.sqlite3' or (BASE_DIR / 'db.sqlite3'),
     }
 }
 
