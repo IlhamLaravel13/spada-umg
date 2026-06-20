@@ -5,7 +5,7 @@ from . import api_views
 app_name = 'assignments-api'
 
 router = DefaultRouter()
-router.register(r'', api_views.AssignmentViewSet)
+router.register(r'', api_views.AssignmentViewSet, basename='assignment')
 router.register(r'submissions', api_views.SubmissionViewSet, basename='submission')
 
 urlpatterns = [

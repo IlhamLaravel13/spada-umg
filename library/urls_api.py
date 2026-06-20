@@ -5,7 +5,7 @@ from . import api_views
 app_name = 'library-api'
 
 router = DefaultRouter()
-router.register(r'', api_views.LibraryItemViewSet)
+router.register(r'', api_views.LibraryItemViewSet, basename='library')
 router.register(r'categories', api_views.LibraryCategoryViewSet, basename='category')
 
 urlpatterns = [

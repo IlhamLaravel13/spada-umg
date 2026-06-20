@@ -5,7 +5,7 @@ from . import api_views
 app_name = 'announcements-api'
 
 router = DefaultRouter()
-router.register(r'', api_views.AnnouncementViewSet)
+router.register(r'', api_views.AnnouncementViewSet, basename='announcement')
 
 urlpatterns = [
     path('', include(router.urls)),

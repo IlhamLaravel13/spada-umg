@@ -5,7 +5,7 @@ from . import api_views
 app_name = 'reports-api'
 
 router = DefaultRouter()
-router.register(r'', api_views.ReportViewSet)
+router.register(r'', api_views.ReportViewSet, basename='report')
 
 urlpatterns = [
     path('generate/', api_views.ReportGenerateView.as_view(), name='api-report-generate'),

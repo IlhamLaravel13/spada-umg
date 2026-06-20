@@ -5,7 +5,7 @@ from . import api_views
 app_name = 'materials-api'
 
 router = DefaultRouter()
-router.register(r'', api_views.MaterialViewSet)
+router.register(r'', api_views.MaterialViewSet, basename='material')
 
 urlpatterns = [
     path('', include(router.urls)),
