@@ -5,6 +5,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'spada_umg.settings')
 os.environ['VERCEL'] = 'true'
 
 try:
+    import django
+    django.setup()
+
+    from django.core.management import call_command
+    call_command('migrate', '--run-syncdb', '--noinput', verbosity=0)
+
     from django.core.wsgi import get_wsgi_application
     from whitenoise import WhiteNoise
     from django.conf import settings

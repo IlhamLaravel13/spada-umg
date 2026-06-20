@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from django.db.utils import OperationalError
 from django.utils import timezone
 from .models import ActivityLog, SystemConfig
 
@@ -59,8 +60,11 @@ class SystemConfigRepository:
         return SystemConfig.objects.filter(is_public=True)
 
     def get_value(self, key: str, default: str = '') -> str:
-        config = self.get_by_key(key)
-        return config.value if config else default
+        try:
+            config = self.get_by_key(key)
+            return config.value if config else default
+        except OperationalError:
+            return default
 
     def set_value(self, key: str, value: str, description: str = '',
                   is_public: bool = False) -> SystemConfig:
