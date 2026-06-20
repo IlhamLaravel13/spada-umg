@@ -1,6 +1,4 @@
 {
-  "buildCommand": "bash build_files.sh",
-  "outputDirectory": ".",
   "framework": null,
   "rewrites": [
     {
