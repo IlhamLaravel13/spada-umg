@@ -5,7 +5,7 @@ from . import api_views
 app_name = 'payments-api'
 
 router = DefaultRouter()
-router.register(r'', api_views.PaymentViewSet)
+router.register(r'', api_views.PaymentViewSet, basename='payments')
 
 urlpatterns = [
     path('', include(router.urls)),
